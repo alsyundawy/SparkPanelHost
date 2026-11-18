@@ -1,0 +1,31 @@
+id: wordpress
+name: "WordPress"
+category: cms
+description:
+  id: "Platform CMS & blog open-source terpopuler dengan ekosistem tema dan plugin luas."
+  en: "The world's most popular open-source CMS and publishing platform."
+version: "6.9.2"
+release_date: "2026-10-14"
+upstream:
+  provider: wordpress_org
+  slug: wordpress
+source:
+  url: "https://wordpress.org/wordpress-6.9.2.tar.gz"
+  sha256: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+  strip_components: 1
+requirements:
+  php_min: "8.2"
+  php_recommended: "8.5"
+  php_extensions:
+    - mysqli
+    - curl
+    - gd
+    - intl
+    - mbstring
+    - zip
+    - imagick
+    - opcache
+  database: mariadb
+  disk_mb: 150
+nginx_template: "wordpress_hardened"
+waf_profile: "wordpress_crs_exclusions"

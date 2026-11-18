@@ -1,0 +1,50 @@
+{
+  "app": {
+    "name": "SparkPanelHost",
+    "version": "v8.1",
+    "command_placeholder": "Search domains, databases, Coraza WAF rules, or run a command (Cmd+K)..."
+  },
+  "nav": {
+    "overview": "Server Overview",
+    "accounts": "Hosting Accounts",
+    "resellers": "Reseller Management",
+    "packages": "Packages & Feature Lists",
+    "domains": "Domains & Multi-PHP",
+    "apps": "App Installer & Staging",
+    "runtimes": "Node.js & Python Apps",
+    "git_deploy": "Git Deployment",
+    "databases": "Databases (MariaDB / PostgreSQL)",
+    "dns": "DNS Zones & DNSSEC",
+    "email": "Email Hosting & Deliverability",
+    "files": "File Manager",
+    "terminal": "Web SSH Terminal",
+    "cron_ftp": "Cron Jobs & FTP/SFTP",
+    "security": "Coraza WAF & CrowdSec Firewall",
+    "backups": "Restic Backups & DR",
+    "api_tokens": "Billing & API Tokens"
+  },
+  "php": {
+    "eol_warning": "PHP 8.2 reaches Security End-of-Life on Dec 31, 2026. Upgrading to PHP 8.5 or 8.6 is recommended.",
+    "eol_badge": "EOL Dec 2026"
+  },
+  "apps": {
+    "categories": {
+      "cms": "Content Management Systems (CMS)",
+      "forum": "Forums & Communities",
+      "marketplace": "E-Commerce & Marketplaces",
+      "webmail": "Webmail Clients"
+    },
+    "sha256_verified": "Archive Integrity Verified (SHA-256 + openat2)",
+    "clone_staging": "Clone to Staging",
+    "push_live": "Push Staging to Live"
+  },
+  "email": {
+    "deliverability_wizard": "SPF, DKIM (RSA + Ed25519), DMARC & MTA-STS Wizard",
+    "rbl_clean": "Server IP Clean (Not Listed on RBL/DNSBL)",
+    "rbl_listed": "Warning: Server IP Listed on RBL"
+  },
+  "impersonation": {
+    "banner": "You are currently impersonating tenant account {{username}}. All actions are recorded in the immutable audit log.",
+    "exit": "Exit Impersonation"
+  }
+}

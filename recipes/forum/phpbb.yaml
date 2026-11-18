@@ -1,0 +1,30 @@
+id: phpbb
+name: "phpBB"
+category: forum
+description:
+  id: "Platform bulletin board open-source matang dengan moderasi dan ekstensi lengkap."
+  en: "Battle-tested open-source bulletin board software with rich moderation tools."
+version: "3.3.14"
+release_date: "2026-09-12"
+upstream:
+  provider: github_release
+  repo: "phpbb/phpbb"
+source:
+  url: "https://api.github.com/repos/phpbb/phpbb/tarball/release-3.3.14"
+  sha256: "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2"
+  strip_components: 1
+requirements:
+  php_min: "8.2"
+  php_recommended: "8.4"
+  php_extensions:
+    - mysqli
+    - gd
+    - intl
+    - json
+    - mbstring
+    - xml
+    - zip
+  database: mariadb
+  disk_mb: 100
+nginx_template: "phpbb_hardened"
+waf_profile: "default"

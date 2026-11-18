@@ -1,0 +1,51 @@
+# SparkPanelHost v0.1.0 - golangci-lint configuration
+# Compatible with golangci-lint v1.64.x
+
+run:
+  timeout: 120s
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - gosimple
+    - ineffassign
+    - unused
+    - gosec
+    - bodyclose
+    - sqlclosecheck
+    - rowserrcheck
+  disable:
+    - typecheck
+
+linters-settings:
+  gosec:
+    excludes:
+      - G304
+      - G306
+  errcheck:
+    check-type-assertions: false
+    check-blank: false
+
+issues:
+  exclude-rules:
+    - path: "_test.go"
+      linters:
+        - gosec
+        - errcheck
+    - path: "gen/"
+      linters:
+        - govet
+        - errcheck
+        - staticcheck
+        - gosimple
+        - ineffassign
+        - unused
+        - gosec
+        - bodyclose
+        - sqlclosecheck
+        - rowserrcheck
+  max-same-issues: 50
+  max-issues-per-linter: 50

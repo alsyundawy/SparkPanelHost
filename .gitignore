@@ -1,0 +1,36 @@
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Node.js
+**/node_modules/
+**/dist/
+**/.vite/
+**/.tsbuildinfo
+*.tsbuildinfo
+
+# Go binaries & tests
+**/backend/bin/
+**/dist/bin/
+*.exe
+*.test
+*.out
+
+# Logs & temp
+*.log
+*.tmp
+*.bak.*
+tmp/
+
+# Python cache
+**/__pycache__/
+*.pyc
+
+# IDE configs
+.idea/
+*.swp
+*.swo
+
+# MegaLinter local reports
+.megalinter-reports/
+megalinter-reports/

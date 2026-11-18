@@ -1,0 +1,86 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# ==============================================================================
+# AetherPanel v8.1 — Multi-Node Vagrant Cluster Specification
+# Topologi: 1 Web Master (Control Plane + OS Agent) + 2 DNS-Only Cluster Nodes
+# Target OS: Ubuntu 24.04 LTS (Noble) & Debian 12 (Bookworm) / Debian 13 (Trixie)
+# ==============================================================================
+
+Vagrant.configure("2") do |config|
+  # Global VirtualBox Provider Tuning
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false
+    vb.linked_clone = true
+  end
+
+  # ============================================================================
+  # Node 1: Web Master (Panel Web + Panel Agent + Nginx + Multi-PHP + MariaDB)
+  # ============================================================================
+  config.vm.define "web-master" do |master|
+    master.vm.box = "ubuntu/noble64"
+    master.vm.hostname = "master.aetherpanel.local"
+    master.vm.network "private_network", ip: "192.168.56.10"
+
+    # Forward Web UI (8443) & HTTP (8080)
+    master.vm.network "forwarded_port", guest: 8443, host: 8443, id: "panel-ssl"
+    master.vm.network "forwarded_port", guest: 80, host: 8080, id: "panel-http"
+
+    master.vm.provider "virtualbox" do |vb|
+      vb.name = "aetherpanel-web-master"
+      vb.memory = 2048
+      vb.cpus = 2
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+    end
+
+    master.vm.provision "shell", inline: <<-SHELL
+      set -Eeuo pipefail
+      echo "==> [web-master] Configuring apt and base dependencies..."
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update -qq
+      apt-get install -y -qq curl jq tar zstd
+      echo "==> [web-master] Ready for AetherPanel installation via installer/install.sh"
+    SHELL
+  end
+
+  # ============================================================================
+  # Node 2: DNS-Only 1 (Debian 12 / 13 — PowerDNS Authoritative REST API)
+  # ============================================================================
+  config.vm.define "dns1" do |dns1|
+    dns1.vm.box = "debian/bookworm64"
+    dns1.vm.hostname = "dns1.example.com"
+    dns1.vm.network "private_network", ip: "192.168.56.11"
+
+    # Forward DNS (5301) and PDNS REST API (8081)
+    dns1.vm.network "forwarded_port", guest: 53, host: 5301, protocol: "udp", id: "dns-udp"
+    dns1.vm.network "forwarded_port", guest: 8081, host: 8081, id: "pdns-api"
+
+    dns1.vm.provider "virtualbox" do |vb|
+      vb.name = "aetherpanel-dns1"
+      vb.memory = 1024
+      vb.cpus = 1
+    end
+
+    dns1.vm.provision "shell", path: "provision-dns-only.sh"
+  end
+
+  # ============================================================================
+  # Node 3: DNS-Only 2 (Ubuntu 24.04 LTS — PowerDNS Authoritative REST API)
+  # ============================================================================
+  config.vm.define "dns2" do |dns2|
+    dns2.vm.box = "ubuntu/noble64"
+    dns2.vm.hostname = "dns2.example.com"
+    dns2.vm.network "private_network", ip: "192.168.56.12"
+
+    # Forward DNS (5302) and PDNS REST API (8082)
+    dns2.vm.network "forwarded_port", guest: 53, host: 5302, protocol: "udp", id: "dns-udp"
+    dns2.vm.network "forwarded_port", guest: 8081, host: 8082, id: "pdns-api"
+
+    dns2.vm.provider "virtualbox" do |vb|
+      vb.name = "aetherpanel-dns2"
+      vb.memory = 1024
+      vb.cpus = 1
+    end
+
+    dns2.vm.provision "shell", path: "provision-dns-only.sh"
+  end
+end

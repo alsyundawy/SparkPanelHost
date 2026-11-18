@@ -1,0 +1,33 @@
+[Unit]
+Description=SparkPanelHost v0.1.0 Privileged System Agent (Zero-Shell gRPC Daemon)
+After=network.target systemd-user-sessions.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=root
+Group=panel-web
+ExecStart=/usr/local/bin/panel-agent --socket /run/panel/agent.sock
+RuntimeDirectory=panel
+RuntimeDirectoryMode=0750
+UMask=0077
+Restart=always
+RestartSec=2s
+
+# Hardening Systemd (Prefix '-' mengabaikan direktori opsional jika belum terpasang)
+ProtectSystem=strict
+ReadWritePaths=/etc/nginx /etc/coraza /etc/php /etc/postfix /etc/dovecot /etc/rspamd /etc/nftables.d -/etc/csf /var/vmail /var/panel /var/log/aetherpanel /home
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectControlGroups=no
+NoNewPrivileges=no
+MemoryDenyWriteExecute=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+
+[Install]
+WantedBy=multi-user.target

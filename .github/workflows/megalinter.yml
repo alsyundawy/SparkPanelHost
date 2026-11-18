@@ -1,0 +1,68 @@
+---
+# MegaLinter GitHub Action for SparkPanelHost
+# Optimized for Go backend, React 19 / TypeScript frontend, Bash installer, and YAML recipes
+name: MegaLinter
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  megalinter:
+    name: MegaLinter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache-dependency-path: backend/go.sum
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Run MegaLinter
+        uses: oxsecurity/megalinter@v8
+        env:
+          # Validate all codebase on main/master or workflow_dispatch
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Exclude vendor, generated proto, dist, and node_modules
+          FILTER_REGEX_EXCLUDE: (backend/gen/|frontend/node_modules/|frontend/dist/|dist/|\.cache/|\.trunk/)
+          # Target linters matching SparkPanelHost stack
+          ENABLE_LINTERS: >-
+            ACTION_ACTIONLINT,
+            BASH_SHELLCHECK,
+            BASH_SHFMT,
+            GO_REVIVE,
+            GO_STATICCHECK,
+            JAVASCRIPT_ES,
+            TYPESCRIPT_ES,
+            JSON_JSONLINT,
+            YAML_YAMLLINT,
+            MARKDOWN_MARKDOWNLINT,
+            PROTOBUF_BUF
+          # Output configuration
+          SHOW_ELAPSED_TIME: true
+          FILEIO_REPORTER: false
+          PRINT_ALPACA: false

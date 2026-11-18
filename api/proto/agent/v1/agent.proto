@@ -1,0 +1,382 @@
+syntax = "proto3";
+
+package aetherpanel.agent.v1;
+
+option go_package = "github.com/aetherpanel/aetherpanel/backend/gen/agent/v1;agentv1";
+
+service SystemAgentService {
+  // Tenant & Resource Isolation (Linux User + cgroups v2 + Disk/Inode Quota)
+  rpc ProvisionTenant(ProvisionTenantRequest) returns (OperationResponse);
+  rpc UpdateTenantLimits(UpdateTenantLimitsRequest) returns (OperationResponse);
+  rpc SuspendTenant(SuspendTenantRequest) returns (OperationResponse);
+
+  // Web Server & WAF (Nginx + Coraza WAF + OWASP CRS v4 + ACME ARI SSL)
+  rpc SyncVirtualHost(SyncVirtualHostRequest) returns (OperationResponse);
+  rpc DeleteVirtualHost(DeleteVirtualHostRequest) returns (OperationResponse);
+  rpc IssueSSLCertificate(IssueSSLCertificateRequest) returns (OperationResponse);
+  rpc ManageWAFExclusion(ManageWAFExclusionRequest) returns (OperationResponse);
+
+  // Multi-PHP FPM Pool Manager (8.2 - 8.6)
+  rpc SyncPHPPool(SyncPHPPoolRequest) returns (OperationResponse);
+
+  // Database Provisioning (MariaDB 12.3 LTS & PostgreSQL 17+)
+  rpc CreateDatabase(CreateDatabaseRequest) returns (OperationResponse);
+  rpc BackupDatabase(BackupDatabaseRequest) returns (BackupDatabaseResponse);
+
+  // PowerDNS 5.1 REST API Bridge, DNSSEC & DNS Clustering (WHM DNS Only style)
+  rpc SyncDNSZone(SyncDNSZoneRequest) returns (OperationResponse);
+  rpc RegisterDNSClusterNode(RegisterDNSClusterNodeRequest) returns (OperationResponse);
+  rpc SyncDNSZoneToCluster(SyncDNSZoneToClusterRequest) returns (OperationResponse);
+  rpc GetDNSClusterStatus(GetDNSClusterStatusRequest) returns (GetDNSClusterStatusResponse);
+
+  // Enterprise Email Hosting (Postfix + Dovecot 2.4 + Rspamd 4.3 + MTA-STS)
+  rpc ProvisionMailDomain(ProvisionMailDomainRequest) returns (ProvisionMailDomainResponse);
+  rpc SyncMailbox(SyncMailboxRequest) returns (OperationResponse);
+  rpc SyncMailAlias(SyncMailAliasRequest) returns (OperationResponse);
+  rpc CheckRBLStatus(CheckRBLStatusRequest) returns (CheckRBLStatusResponse);
+
+  // Firewall & IDS/IPS (nftables inet aetherpanel + CrowdSec 1.8)
+  rpc ApplyFirewallRule(ApplyFirewallRuleRequest) returns (OperationResponse);
+
+  // Safe Privilege-Dropped File, App Installer & Staging Operations (openat2)
+  rpc InstallAppArchive(InstallAppArchiveRequest) returns (OperationResponse);
+  rpc CloneAppStaging(CloneAppStagingRequest) returns (OperationResponse);
+  rpc DeployGitRepository(DeployGitRepositoryRequest) returns (OperationResponse);
+
+  // Backup & Disaster Recovery (Restic 3-2-1 + Test Restore)
+  rpc CreateBackup(CreateBackupRequest) returns (OperationResponse);
+  rpc RestoreBackup(RestoreBackupRequest) returns (OperationResponse);
+  rpc TestRestoreBackup(TestRestoreBackupRequest) returns (OperationResponse);
+
+  // Modern App Runtimes (Node.js & Python venv), Cron & FTP/SFTP
+  rpc ManageAppRuntime(ManageAppRuntimeRequest) returns (OperationResponse);
+  rpc SyncCronJob(SyncCronJobRequest) returns (OperationResponse);
+  rpc ProvisionFTPAccount(ProvisionFTPAccountRequest) returns (OperationResponse);
+
+  // System & Tenant cgroups v2 Telemetry
+  rpc GetSystemTelemetry(GetSystemTelemetryRequest) returns (GetSystemTelemetryResponse);
+
+  // Service Configuration Editor with 1-Click Rollback
+  rpc ReadServiceConfig(ReadServiceConfigRequest) returns (ReadServiceConfigResponse);
+  rpc WriteServiceConfig(WriteServiceConfigRequest) returns (WriteServiceConfigResponse);
+  rpc RollbackServiceConfig(RollbackServiceConfigRequest) returns (OperationResponse);
+  rpc ListServiceConfigBackups(ListServiceConfigBackupsRequest) returns (ListServiceConfigBackupsResponse);
+}
+
+message OperationResponse {
+  bool success = 1;
+  string message = 2;
+  string audit_id = 3;
+}
+
+message ProvisionTenantRequest {
+  string username = 1;
+  uint32 uid = 2;
+  uint32 gid = 3;
+  uint64 disk_quota_mb = 4;
+  uint64 inode_quota = 5;
+  uint32 cpu_quota_percent = 6;
+  uint64 memory_limit_mb = 7;
+  uint32 io_weight = 8;
+  uint32 tasks_max = 9;
+  bool shell_access = 10;
+}
+
+message UpdateTenantLimitsRequest {
+  string username = 1;
+  uint64 disk_quota_mb = 2;
+  uint64 inode_quota = 3;
+  uint32 cpu_quota_percent = 4;
+  uint64 memory_limit_mb = 5;
+  uint32 io_weight = 6;
+  uint32 tasks_max = 7;
+}
+
+message SuspendTenantRequest {
+  string username = 1;
+  bool suspended = 2;
+}
+
+message SyncVirtualHostRequest {
+  string username = 1;
+  string domain_name = 2;
+  string document_root = 3;
+  string php_version = 4; // "8.2", "8.3", "8.4", "8.5", "8.6", "static", "proxy"
+  uint32 proxy_port = 5;
+  bool ssl_enabled = 6;
+  bool force_https = 7;
+  string waf_mode = 8;    // "Blocking", "DetectionOnly", "Off"
+  string waf_profile = 9;
+  string nginx_template = 10;
+}
+
+message DeleteVirtualHostRequest {
+  string username = 1;
+  string domain_name = 2;
+}
+
+message IssueSSLCertificateRequest {
+  string domain_name = 1;
+  string challenge_type = 2; // "http-01" or "dns-01"
+  bool wildcard = 3;
+}
+
+message ManageWAFExclusionRequest {
+  string domain_name = 1;
+  string action = 2;      // "add" or "remove"
+  uint32 rule_id = 3;
+  string uri_prefix = 4;
+}
+
+message SyncPHPPoolRequest {
+  string username = 1;
+  string php_version = 2;
+  uint32 max_children = 3;
+  string memory_limit = 4;
+  map<string, string> custom_ini = 5;
+}
+
+message CreateDatabaseRequest {
+  string username = 1;
+  string engine = 2; // "mariadb" or "postgresql"
+  string db_name = 3;
+  string db_user = 4;
+  string db_password = 5;
+}
+
+message BackupDatabaseRequest {
+  string username = 1;
+  string engine = 2;
+  string db_name = 3;
+  string output_dir = 4; // Wajib di /var/panel/tmp/<username> atau /home/<username>
+}
+
+message BackupDatabaseResponse {
+  bool success = 1;
+  string archive_path = 2;
+  string sha256 = 3;
+}
+
+message DNSRecord {
+  string name = 1;
+  string type = 2;
+  string content = 3;
+  uint32 ttl = 4;
+  uint32 priority = 5;
+}
+
+message SyncDNSZoneRequest {
+  string zone_name = 1;
+  repeated DNSRecord records = 2;
+  bool enable_dnssec = 3;
+}
+
+message RegisterDNSClusterNodeRequest {
+  string cluster_name = 1;
+  string hostname = 2;
+  string api_endpoint = 3;
+  string role = 4; // "write_only", "synchronize", "standalone", "dns_only"
+  string api_token = 5;
+}
+
+message SyncDNSZoneToClusterRequest {
+  string zone_name = 1;
+  string cluster_name = 2;
+  bool force = 3;
+}
+
+message GetDNSClusterStatusRequest {
+  string cluster_name = 1;
+}
+
+message DNSClusterNodeStatus {
+  string hostname = 1;
+  string role = 2;
+  string status = 3; // "online", "offline", "drift"
+  int64 last_seen_unix = 4;
+  uint32 zones_synced = 5;
+}
+
+message GetDNSClusterStatusResponse {
+  bool success = 1;
+  repeated DNSClusterNodeStatus nodes = 2;
+}
+
+message ProvisionMailDomainRequest {
+  string domain_name = 1;
+  string dkim_selector = 2;
+  string mta_sts_mode = 3; // "none", "testing", "enforce"
+}
+
+message ProvisionMailDomainResponse {
+  bool success = 1;
+  string dkim_rsa_dns_record = 2;
+  string dkim_ed25519_dns_record = 3;
+}
+
+message SyncMailboxRequest {
+  string domain_name = 1;
+  string local_part = 2;
+  string password_hash = 3;
+  uint64 quota_mb = 4;
+  bool active = 5;
+}
+
+message SyncMailAliasRequest {
+  string domain_name = 1;
+  string source_local_part = 2;
+  repeated string destination_emails = 3;
+  bool active = 4;
+}
+
+message CheckRBLStatusRequest {
+  string server_ip = 1;
+}
+
+message RBLListing {
+  string provider = 1;
+  bool listed = 2;
+  string detail = 3;
+}
+
+message CheckRBLStatusResponse {
+  string server_ip = 1;
+  bool clean = 2;
+  repeated RBLListing results = 3;
+}
+
+message ApplyFirewallRuleRequest {
+  string action = 1;   // "allow", "deny", "remove"
+  string cidr_or_ip = 2;
+  uint32 port = 3;
+  string protocol = 4; // "tcp", "udp", "any"
+  string comment = 5;
+}
+
+message InstallAppArchiveRequest {
+  string username = 1;
+  string archive_url = 2;
+  string expected_sha256 = 3;
+  string target_dir = 4;
+  uint32 strip_components = 5;
+}
+
+message CloneAppStagingRequest {
+  string username = 1;
+  string source_dir = 2;
+  string target_dir = 3;
+  string source_db = 4;
+  string target_db = 5;
+  string old_url = 6;
+  string new_url = 7;
+}
+
+message DeployGitRepositoryRequest {
+  string username = 1;
+  string repo_url = 2;
+  string branch = 3;
+  string deploy_dir = 4;
+}
+
+message CreateBackupRequest {
+  string username = 1;
+  string destination_id = 2;
+  bool include_databases = 3;
+  bool include_mail = 4;
+}
+
+message RestoreBackupRequest {
+  string username = 1;
+  string snapshot_id = 2;
+  string destination_id = 3;
+}
+
+message TestRestoreBackupRequest {
+  string snapshot_id = 1;
+  string destination_id = 2;
+}
+
+message ManageAppRuntimeRequest {
+  string username = 1;
+  string runtime_type = 2; // "nodejs" or "python"
+  string action = 3;       // "start", "stop", "restart", "setup"
+  string app_name = 4;
+  string working_dir = 5;
+  string entrypoint = 6;
+  uint32 port = 7;
+}
+
+message SyncCronJobRequest {
+  string username = 1;
+  string action = 2; // "add", "remove", "enable", "disable"
+  string schedule = 3;
+  string command = 4;
+}
+
+message ProvisionFTPAccountRequest {
+  string username = 1;
+  string ftp_user = 2;
+  string password_hash = 3;
+  string home_dir = 4;
+}
+
+message GetSystemTelemetryRequest {
+  string username = 1; // Kosong = node-wide telemetry
+}
+
+message GetSystemTelemetryResponse {
+  double cpu_percent = 1;
+  uint64 ram_used_mb = 2;
+  uint64 ram_total_mb = 3;
+  uint64 disk_used_mb = 4;
+  uint64 disk_total_mb = 5;
+  uint64 waf_blocked_24h = 6;
+  uint64 crowdsec_active_bans = 7;
+}
+
+message ReadServiceConfigRequest {
+  string service = 1;
+  string sub_path = 2;
+}
+
+message ReadServiceConfigResponse {
+  bool success = 1;
+  string message = 2;
+  string file_path = 3;
+  string content = 4;
+}
+
+message WriteServiceConfigRequest {
+  string service = 1;
+  string sub_path = 2;
+  string content = 3;
+}
+
+message WriteServiceConfigResponse {
+  bool success = 1;
+  string message = 2;
+  string backup_path = 3;
+}
+
+message RollbackServiceConfigRequest {
+  string service = 1;
+  string sub_path = 2;
+  string backup_timestamp = 3;
+}
+
+message ListServiceConfigBackupsRequest {
+  string service = 1;
+  string sub_path = 2;
+}
+
+message ConfigBackupEntry {
+  string backup_file = 1;
+  string timestamp = 2;
+  int64 size_bytes = 3;
+}
+
+message ListServiceConfigBackupsResponse {
+  bool success = 1;
+  string message = 2;
+  repeated ConfigBackupEntry backups = 3;
+}

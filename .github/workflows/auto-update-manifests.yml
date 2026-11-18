@@ -1,0 +1,52 @@
+name: Auto-Update App Installer Manifests
+
+on:
+  schedule:
+    # Berjalan otomatis setiap hari pukul 02:00 UTC (09:00 WIB)
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-manifests:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install validator & YAML dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pyyaml jsonschema
+
+      - name: Run upstream release & SHA-256 updater
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/update_manifests.py
+
+      - name: Validate updated recipes against JSON Schema
+        run: |
+          python3 scripts/verify_recipes.py
+
+      - name: Create Pull Request if manifests changed
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(recipes): update upstream app versions and SHA-256 checksums"
+          title: "chore(recipes): Auto-update App Installer manifests"
+          body: |
+            ### Pembaruan Otomatis Manifes App Installer (v8.1)
+            - Mengambil rilis stabil terbaru dari upstream resmi dengan *host allowlist*.
+            - Menghitung ulang dan memverifikasi integritas digest **SHA-256** (Mitigasi CWE-494).
+            - Lolos validasi skema JSON `recipes/schema/recipe.schema.json`.
+          branch: chore/auto-update-app-manifests
+          delete-branch: true

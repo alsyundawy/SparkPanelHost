@@ -1,0 +1,30 @@
+id: opencart
+name: "OpenCart"
+category: marketplace
+description:
+  id: "Sistem toko online ringan dengan dukungan multi-store dan ribuan modul pembayaran."
+  en: "Lightweight open-source shopping cart with native multi-store management."
+version: "4.1.0"
+release_date: "2026-10-02"
+upstream:
+  provider: github_release
+  repo: "opencart/opencart"
+  asset_regex: '^opencart-.*\.zip$'
+source:
+  url: "https://github.com/opencart/opencart/releases/download/4.1.0/opencart-4.1.0.zip"
+  sha256: "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+  strip_components: 1
+requirements:
+  php_min: "8.3"
+  php_recommended: "8.5"
+  php_extensions:
+    - curl
+    - gd
+    - intl
+    - mbstring
+    - mysqli
+    - zip
+  database: mariadb
+  disk_mb: 160
+nginx_template: "opencart_hardened"
+waf_profile: "ecommerce_crs_exclusions"

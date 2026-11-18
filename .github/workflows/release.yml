@@ -1,0 +1,101 @@
+name: Release Production Package
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Publish Release Tarball
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: backend/go.sum
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install System Dependencies (zstd, tar)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd tar
+
+      - name: Validate Native App Installer Recipes
+        run: |
+          pip install pyyaml jsonschema
+          python3 scripts/verify_recipes.py
+
+      - name: Extract Tag Version
+        id: vars
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          echo "version=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Build Production Binaries & Frontend
+        env:
+          VERSION: ${{ steps.vars.outputs.version }}
+        run: |
+          mkdir -p dist/bin dist/web dist/packages
+          
+          # Compile Go static binaries
+          cd backend
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath \
+            -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${{ github.sha }} -X main.BuildTime=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            -o ../dist/bin/panel-agent ./cmd/panel-agent
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath \
+            -ldflags="-s -w -X main.Version=${VERSION} -X main.Commit=${{ github.sha }} -X main.BuildTime=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            -o ../dist/bin/panel-web ./cmd/panel-web
+          cd ..
+
+          # Build React 19 Frontend
+          cd frontend
+          npm ci
+          npm run typecheck
+          npm run build
+          cp -r dist/* ../dist/web/
+          cd ..
+
+      - name: Package Release Tarball (tar.zst) & SHA-256
+        env:
+          VERSION: ${{ steps.vars.outputs.version }}
+        run: |
+          PKG_NAME="aetherpanel-${VERSION}-linux-amd64.tar.zst"
+          tar --zstd -cf "dist/packages/${PKG_NAME}" \
+            -C dist bin web \
+            installer recipes
+          
+          cd dist/packages
+          sha256sum "${PKG_NAME}" > "${PKG_NAME}.sha256"
+          echo "==> Package ready: ${PKG_NAME}"
+          cat "${PKG_NAME}.sha256"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/packages/aetherpanel-*.tar.zst
+            dist/packages/aetherpanel-*.tar.zst.sha256
+          draft: false
+          prerelease: false
+          generate_release_notes: true

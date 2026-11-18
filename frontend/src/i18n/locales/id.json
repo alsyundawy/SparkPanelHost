@@ -1,0 +1,50 @@
+{
+  "app": {
+    "name": "SparkPanelHost",
+    "version": "v8.1",
+    "command_placeholder": "Cari domain, database, aturan Coraza WAF, atau jalankan perintah (Cmd+K)..."
+  },
+  "nav": {
+    "overview": "Ringkasan Server",
+    "accounts": "Akun Hosting",
+    "resellers": "Manajemen Reseller",
+    "packages": "Paket & Feature Lists",
+    "domains": "Domain & Multi-PHP",
+    "apps": "App Installer & Staging",
+    "runtimes": "Aplikasi Node.js & Python",
+    "git_deploy": "Git Deployment",
+    "databases": "Database (MariaDB / PostgreSQL)",
+    "dns": "Zona DNS & DNSSEC",
+    "email": "Email Hosting & Deliverability",
+    "files": "File Manager",
+    "terminal": "Web SSH Terminal",
+    "cron_ftp": "Cron Job & FTP/SFTP",
+    "security": "Coraza WAF & Firewall CrowdSec",
+    "backups": "Backup Restic & Pemulihan",
+    "api_tokens": "Token API & Billing"
+  },
+  "php": {
+    "eol_warning": "PHP 8.2 mencapai End-of-Life keamanan pada 31 Des 2026. Disarankan beralih ke PHP 8.5 atau 8.6.",
+    "eol_badge": "EOL Des 2026"
+  },
+  "apps": {
+    "categories": {
+      "cms": "Sistem Manajemen Konten (CMS)",
+      "forum": "Komunitas & Forum",
+      "marketplace": "Toko Online & Marketplace",
+      "webmail": "Klien Webmail"
+    },
+    "sha256_verified": "Integritas Arsip Terverifikasi (SHA-256 + openat2)",
+    "clone_staging": "Kloning ke Staging",
+    "push_live": "Terbitkan Staging ke Produksi"
+  },
+  "email": {
+    "deliverability_wizard": "Wizard SPF, DKIM (RSA + Ed25519), DMARC & MTA-STS",
+    "rbl_clean": "IP Server Bersih (Tidak Terdaftar di RBL/DNSBL)",
+    "rbl_listed": "Peringatan: IP Server Terdaftar di RBL"
+  },
+  "impersonation": {
+    "banner": "Anda sedang masuk sebagai akun tenant {{username}}. Seluruh aktivitas dicatat pada audit log permanen.",
+    "exit": "Keluar dari Mode Impersonasi"
+  }
+}

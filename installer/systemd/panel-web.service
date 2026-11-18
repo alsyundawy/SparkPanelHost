@@ -1,0 +1,38 @@
+[Unit]
+Description=SparkPanelHost v0.1.0 Unprivileged Control Plane API & Web UI
+After=network.target panel-agent.service
+Requires=panel-agent.service
+
+[Service]
+Type=simple
+User=panel-web
+Group=panel-web
+ExecStart=/usr/local/bin/panel-web --config /etc/aetherpanel/config.yaml
+WorkingDirectory=/var/panel
+UMask=0077
+Restart=always
+RestartSec=3s
+
+# Strict Unprivileged Sandbox (Zero Capabilities)
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/panel/data /var/panel/tmp /var/log/aetherpanel
+CapabilityBoundingSet=
+AmbientCapabilities=
+
+[Install]
+WantedBy=multi-user.target

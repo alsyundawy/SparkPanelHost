@@ -1,0 +1,49 @@
+#!/usr/sbin/nft -f
+# AetherPanel v8.1 — Dedicated Atomic Firewall Table (inet aetherpanel)
+# Terisolasi dari tabel Docker/Podman/CrowdSec agar reload tidak memutus jaringan kontainer.
+
+table inet aetherpanel
+delete table inet aetherpanel
+
+table inet aetherpanel {
+    set blocked_ipv4 {
+        type ipv4_addr
+        flags interval
+        auto-merge
+    }
+
+    set blocked_ipv6 {
+        type ipv6_addr
+        flags interval
+        auto-merge
+    }
+
+    chain input {
+        type filter hook input priority 0; policy drop;
+
+        # Izinkan loopback & koneksi yang sudah terbentuk
+        iifname "lo" accept
+        ct state established,related accept
+        ct state invalid drop
+
+        # Blokir daftar IP manual dari panel
+        ip saddr @blocked_ipv4 drop
+        ip6 saddr @blocked_ipv6 drop
+
+        # ICMP & ICMPv6 esensial (Path MTU Discovery & Neighbor Discovery)
+        ip protocol icmp icmp type { echo-request, destination-unreachable, time-exceeded } limit rate 10/second accept
+        ip6 nexthdr ipv6-icmp icmpv6 type { echo-request, destination-unreachable, packet-too-big, time-exceeded, nd-neighbor-solicit, nd-neighbor-advert, nd-router-advert } limit rate 10/second accept
+
+        # Port Layanan Hosting Standar + AetherPanel (2083 Tenant, 2087 Admin)
+        tcp dport { 22, 53, 80, 443, 25, 465, 587, 993, 995, 2083, 2087 } accept
+        udp dport { 53, 443 } accept
+    }
+
+    chain forward {
+        type filter hook forward priority 0; policy drop;
+    }
+
+    chain output {
+        type filter hook output priority 0; policy accept;
+    }
+}

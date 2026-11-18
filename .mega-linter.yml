@@ -1,0 +1,25 @@
+# MegaLinter Configuration for SparkPanelHost
+# https://megalinter.io/latest/config-file/
+
+ENABLE_LINTERS:
+  - ACTION_ACTIONLINT
+  - BASH_SHELLCHECK
+  - BASH_SHFMT
+  - GO_REVIVE
+  - GO_STATICCHECK
+  - JAVASCRIPT_ES
+  - TYPESCRIPT_ES
+  - JSON_JSONLINT
+  - YAML_YAMLLINT
+  - MARKDOWN_MARKDOWNLINT
+  - PROTOBUF_BUF
+
+FILTER_REGEX_EXCLUDE: "(backend/gen/|frontend/node_modules/|frontend/dist/|dist/|\\.cache/|\\.trunk/)"
+
+MARKDOWN_MARKDOWNLINT_DISABLE_ERRORS: false
+YAML_YAMLLINT_DISABLE_ERRORS: false
+BASH_SHELLCHECK_DISABLE_ERRORS: false
+ACTION_ACTIONLINT_DISABLE_ERRORS: false
+
+SHOW_ELAPSED_TIME: true
+PRINT_ALPACA: false

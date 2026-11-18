@@ -1,0 +1,33 @@
+id: prestashop
+name: "PrestaShop"
+category: marketplace
+description:
+  id: "Platform e-commerce & toko online lengkap dengan manajemen katalog dan pembayaran."
+  en: "Full-featured open-source e-commerce and online marketplace platform."
+version: "9.0.2"
+release_date: "2026-10-28"
+upstream:
+  provider: github_release
+  repo: "PrestaShop/PrestaShop"
+  asset_regex: '^prestashop_.*\.zip$'
+source:
+  url: "https://github.com/PrestaShop/PrestaShop/releases/download/9.0.2/prestashop_9.0.2.zip"
+  sha256: "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
+  strip_components: 0
+requirements:
+  php_min: "8.3"
+  php_recommended: "8.5"
+  php_extensions:
+    - curl
+    - dom
+    - fileinfo
+    - gd
+    - intl
+    - mbstring
+    - pdo_mysql
+    - simplexml
+    - zip
+  database: mariadb
+  disk_mb: 350
+nginx_template: "prestashop_hardened"
+waf_profile: "ecommerce_crs_exclusions"

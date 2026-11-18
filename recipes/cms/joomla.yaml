@@ -1,0 +1,32 @@
+id: joomla
+name: "Joomla!"
+category: cms
+description:
+  id: "Sistem manajemen konten enterprise dengan kontrol akses ACL bawaan yang kuat."
+  en: "Flexible enterprise-grade content management system with built-in ACL."
+version: "5.2.4"
+release_date: "2026-10-18"
+upstream:
+  provider: github_release
+  repo: "joomla/joomla-cms"
+  asset_regex: '^Joomla_.*-Stable-Full_Package\.tar\.gz$'
+source:
+  url: "https://github.com/joomla/joomla-cms/releases/download/5.2.4/Joomla_5.2.4-Stable-Full_Package.tar.gz"
+  sha256: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+  strip_components: 0
+requirements:
+  php_min: "8.3"
+  php_recommended: "8.5"
+  php_extensions:
+    - mysqli
+    - pdo_mysql
+    - curl
+    - gd
+    - intl
+    - mbstring
+    - xml
+    - zip
+  database: mariadb
+  disk_mb: 180
+nginx_template: "joomla_hardened"
+waf_profile: "joomla_crs_exclusions"
