@@ -46,5 +46,12 @@
   "impersonation": {
     "banner": "You are currently impersonating tenant account {{username}}. All actions are recorded in the immutable audit log.",
     "exit": "Exit Impersonation"
+  },
+  "sidebar": {
+    "core": "Core Platform",
+    "management": "Account Management",
+    "hosting": "Web & Data Services",
+    "communication": "Access & Mail",
+    "security_ops": "Security & Operations"
   }
 }

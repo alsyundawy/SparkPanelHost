@@ -46,5 +46,12 @@
   "impersonation": {
     "banner": "Anda sedang masuk sebagai akun tenant {{username}}. Seluruh aktivitas dicatat pada audit log permanen.",
     "exit": "Keluar dari Mode Impersonasi"
+  },
+  "sidebar": {
+    "core": "Platform Utama",
+    "management": "Manajemen Akun",
+    "hosting": "Layanan Web & Data",
+    "communication": "Akses & Email",
+    "security_ops": "Keamanan & Operasi"
   }
 }

@@ -1,50 +1,84 @@
-import React, { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
-import { Sidebar } from './components/Sidebar';
-import { ImpersonationBanner } from './components/ImpersonationBanner';
-import { CommandPalette } from './components/CommandPalette';
-import { OverviewPage } from './pages/OverviewPage';
-import { DomainsPage } from './pages/DomainsPage';
-import { DNSClusterPage } from './pages/DNSClusterPage';
-import { AppInstallerPage } from './pages/AppInstallerPage';
-import { DatabasesPage } from './pages/DatabasesPage';
-import { EmailPage } from './pages/EmailPage';
-import { AccountsPage } from './pages/AccountsPage';
-import { FileManagerPage } from './pages/FileManagerPage';
-import { WebTerminalPage } from './pages/WebTerminalPage';
-import { AuditLogsPage } from './pages/AuditLogsPage';
-import { ConfigEditorPage } from './pages/ConfigEditorPage';
-import type { User } from './types';
-import { Shield, Lock } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Navbar } from "./components/Navbar";
+import { Sidebar } from "./components/Sidebar";
+import { ImpersonationBanner } from "./components/ImpersonationBanner";
+import { CommandPalette } from "./components/CommandPalette";
+import { OverviewPage } from "./pages/OverviewPage";
+import { DomainsPage } from "./pages/DomainsPage";
+import { DNSClusterPage } from "./pages/DNSClusterPage";
+import { AppInstallerPage } from "./pages/AppInstallerPage";
+import { DatabasesPage } from "./pages/DatabasesPage";
+import { EmailPage } from "./pages/EmailPage";
+import { AccountsPage } from "./pages/AccountsPage";
+import { PackagesPage } from "./pages/PackagesPage";
+import { FileManagerPage } from "./pages/FileManagerPage";
+import { WebTerminalPage } from "./pages/WebTerminalPage";
+import { SecurityPage } from "./pages/SecurityPage";
+import { BackupsPage } from "./pages/BackupsPage";
+import { AuditLogsPage } from "./pages/AuditLogsPage";
+import { ConfigEditorPage } from "./pages/ConfigEditorPage";
+import type { User } from "./types";
+import { Shield, Lock } from "lucide-react";
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [impersonated, setImpersonated] = useState(false);
-  const [currentTab, setCurrentTab] = useState('overview');
+  const [currentTab, setCurrentTab] = useState("overview");
   const [isDark, setIsDark] = useState(true);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem("spark_sidebar_collapsed") === "true";
+    } catch {
+      return false;
+    }
+  });
 
   // Login form state
-  const [loginUsername, setLoginUsername] = useState('admin');
-  const [loginPassword, setLoginPassword] = useState('AetherAdmin@2026!');
-  const [loginError, setLoginError] = useState('');
+  const [loginUsername, setLoginUsername] = useState("admin");
+  const [loginPassword, setLoginPassword] = useState("AetherAdmin@2026!");
+  const [loginError, setLoginError] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
 
   useEffect(() => {
     // Check dark mode
     if (isDark) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
   }, [isDark]);
 
   useEffect(() => {
+    // Global Cmd+K / Ctrl+K keyboard shortcut listener
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleToggleSidebar = () => {
+    setIsSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("spark_sidebar_collapsed", String(next));
+      } catch {
+        // Fallback for private mode
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
     // Check existing session
-    fetch('/api/v1/auth/me')
+    fetch("/api/v1/auth/me")
       .then((res) => {
         if (res.ok) return res.json();
-        throw new Error('Not logged in');
+        throw new Error("Not logged in");
       })
       .then((data) => {
         if (data.user) {
@@ -55,15 +89,15 @@ export const App: React.FC = () => {
       .catch(() => {
         // Fallback default demo user
         setUser({
-          id: 'usr-admin',
-          username: 'admin',
-          email: 'admin@aetherpanel.local',
-          role: 'superadmin',
+          id: "usr-admin",
+          username: "admin",
+          email: "admin@aetherpanel.local",
+          role: "superadmin",
           linux_uid: 0,
           linux_gid: 0,
-          locale: 'id',
-          theme: 'dark',
-          status: 'active',
+          locale: "id",
+          theme: "dark",
+          status: "active",
           created_at: new Date().toISOString(),
         });
       });
@@ -72,36 +106,39 @@ export const App: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginLoading(true);
-    setLoginError('');
+    setLoginError("");
     try {
-      const res = await fetch('/api/v1/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: loginUsername, password: loginPassword }),
+      const res = await fetch("/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: loginUsername,
+          password: loginPassword,
+        }),
       });
       const data = await res.json();
       if (res.ok && data.user) {
         setUser(data.user);
       } else {
-        setLoginError(data.error || 'Invalid credentials');
+        setLoginError(data.error || "Invalid credentials");
       }
     } catch {
-      setLoginError('Could not connect to backend server');
+      setLoginError("Could not connect to backend server");
     } finally {
       setLoginLoading(false);
     }
   };
 
   const handleLogout = async () => {
-    await fetch('/api/v1/auth/logout', { method: 'POST' });
+    await fetch("/api/v1/auth/logout", { method: "POST" });
     setUser(null);
   };
 
   const handleImpersonate = async (targetUser: User) => {
     try {
-      const res = await fetch('/api/v1/auth/impersonate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/v1/auth/impersonate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ target_user_id: targetUser.id }),
       });
       if (res.ok) {
@@ -120,22 +157,22 @@ export const App: React.FC = () => {
     setImpersonated(false);
     // Restore admin
     setUser({
-      id: 'usr-admin',
-      username: 'admin',
-      email: 'admin@aetherpanel.local',
-      role: 'superadmin',
+      id: "usr-admin",
+      username: "admin",
+      email: "admin@aetherpanel.local",
+      role: "superadmin",
       linux_uid: 0,
       linux_gid: 0,
-      locale: 'id',
-      theme: 'dark',
-      status: 'active',
+      locale: "id",
+      theme: "dark",
+      status: "active",
       created_at: new Date().toISOString(),
     });
   };
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg-canvas p-4">
+      <div className="min-h-screen flex items-center justify-center bg-bg-canvas p-4 select-none">
         <div className="w-full max-w-sm rounded-2xl border border-border-subtle bg-bg-card p-8 shadow-2xl space-y-6">
           <div className="text-center space-y-2">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-accent-primary text-white shadow-md">
@@ -157,7 +194,9 @@ export const App: React.FC = () => {
 
           <form onSubmit={handleLogin} className="space-y-4 text-xs">
             <div>
-              <label className="block font-semibold text-text-secondary mb-1">Username</label>
+              <label className="block font-semibold text-text-secondary mb-1">
+                Username
+              </label>
               <input
                 type="text"
                 required
@@ -168,7 +207,9 @@ export const App: React.FC = () => {
             </div>
 
             <div>
-              <label className="block font-semibold text-text-secondary mb-1">Password</label>
+              <label className="block font-semibold text-text-secondary mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 required
@@ -184,7 +225,9 @@ export const App: React.FC = () => {
               className="w-full flex items-center justify-center gap-2 rounded-lg bg-accent-primary py-2.5 font-semibold text-white hover:bg-accent-hover transition-colors shadow-sm"
             >
               <Lock className="h-3.5 w-3.5" />
-              <span>{loginLoading ? 'Authenticating...' : 'Sign In to Panel'}</span>
+              <span>
+                {loginLoading ? "Authenticating..." : "Sign In to Panel"}
+              </span>
             </button>
           </form>
         </div>
@@ -193,7 +236,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-bg-canvas text-text-primary">
+    <div className="min-h-screen flex flex-col bg-bg-canvas text-text-primary antialiased">
       {/* Top Navigation */}
       <Navbar
         user={user}
@@ -201,6 +244,9 @@ export const App: React.FC = () => {
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         isDark={isDark}
         onToggleTheme={() => setIsDark(!isDark)}
+        currentTab={currentTab}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={handleToggleSidebar}
       />
 
       {/* Impersonation Banner */}
@@ -218,21 +264,30 @@ export const App: React.FC = () => {
           currentTab={currentTab}
           onSelectTab={setCurrentTab}
           role={user.role}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={handleToggleSidebar}
         />
 
         {/* Content View */}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          {currentTab === 'overview' && <OverviewPage onNavigate={setCurrentTab} />}
-          {currentTab === 'accounts' && <AccountsPage onImpersonate={handleImpersonate} />}
-          {currentTab === 'domains' && <DomainsPage />}
-          {currentTab === 'dns' && <DNSClusterPage />}
-          {currentTab === 'apps' && <AppInstallerPage />}
-          {currentTab === 'databases' && <DatabasesPage />}
-          {currentTab === 'email' && <EmailPage />}
-          {currentTab === 'files' && <FileManagerPage />}
-          {currentTab === 'terminal' && <WebTerminalPage />}
-          {currentTab === 'config-editor' && <ConfigEditorPage />}
-          {currentTab === 'audit-logs' && <AuditLogsPage />}
+          {currentTab === "overview" && (
+            <OverviewPage onNavigate={setCurrentTab} />
+          )}
+          {currentTab === "accounts" && (
+            <AccountsPage onImpersonate={handleImpersonate} />
+          )}
+          {currentTab === "packages" && <PackagesPage />}
+          {currentTab === "domains" && <DomainsPage />}
+          {currentTab === "dns" && <DNSClusterPage />}
+          {currentTab === "apps" && <AppInstallerPage />}
+          {currentTab === "databases" && <DatabasesPage />}
+          {currentTab === "email" && <EmailPage />}
+          {currentTab === "files" && <FileManagerPage />}
+          {currentTab === "terminal" && <WebTerminalPage />}
+          {currentTab === "security" && <SecurityPage />}
+          {currentTab === "backups" && <BackupsPage />}
+          {currentTab === "config-editor" && <ConfigEditorPage />}
+          {currentTab === "audit-logs" && <AuditLogsPage />}
         </main>
       </div>
 

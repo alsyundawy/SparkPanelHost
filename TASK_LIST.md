@@ -24,7 +24,7 @@ Dokumen ini adalah hasil analisis mendalam terhadap **seluruh berkas spesifikasi
 | **Pillar 3: 10 Driver Layanan Sistem & OS Engine**                   | `GEMINI.md`, `00_MASTER_PLAN`    |      Selesai      |   10    |   0   |   10   |   100%    |
 | **Pillar 4: Control Plane API, RBAC & SQLite WAL**                   | `02_DATABASE_SCHEMA`, `05_GUIDE` |      Selesai      |    8    |   0   |   8    |   100%    |
 | **Pillar 5: Production Installer DEB822 & Recipes**                  | `03_INSTALLER`, `05_GUIDE`       |      Selesai      |    7    |   0   |   7    |   100%    |
-| **Pillar 6: Frontend UI/UX (React 19 + Tailwind v4)**                | `04_MODERN_UI_UX`, `00_PLAN`     |      Selesai      |   10    |   0   |   10   |   100%    |
+| **Pillar 6: Frontend UI/UX (React 19 + Tailwind v4)**                | `04_MODERN_UI_UX`, `00_PLAN`     |      Selesai      |   14    |   0   |   14   |   100%    |
 | **Pillar 7: Multi-Factor Authentication (Passkeys & TOTP)**          | `02_DATABASE_SCHEMA`, `00_PLAN`  |      Selesai      |    4    |   0   |   4    |   100%    |
 | **Pillar 8: Billing Automation API (WHMCS) & Gating**                | `00_MASTER_PLAN`, `02_SCHEMA`    |      Selesai      |    5    |   0   |   5    |   100%    |
 | **Pillar 9: cPanel / DirectAdmin Account Importer**                  | `00_MASTER_PLAN`, `03_RECIPES`   |      Selesai      |    3    |   0   |   3    |   100%    |
@@ -33,7 +33,7 @@ Dokumen ini adalah hasil analisis mendalam terhadap **seluruh berkas spesifikasi
 | **Pillar 12: Multi-Node Vagrant VM & CI/CD Security Gate**           | `00_MASTER_PLAN`, `05_GUIDE`     |      Selesai      |    4    |   0   |   4    |   100%    |
 | **Pillar 13: 2025–2026 CVE Hardening & Zero-Error Linter Alignment** | `GEMINI.md`, `14 Pillars`        |      Selesai      |    7    |   0   |   7    |   100%    |
 | **Pillar 14: Industry Intelligence & Next-Gen Hosting Innovations**  | `Industry Research`, `RFC 8461`  |      Selesai      |    5    |   0   |   5    |   100%    |
-| **TOTAL KESELURUHAN**                                                | —                                | **Selesai Penuh** | **85**  | **0** | **85** | **100%**  |
+| **TOTAL KESELURUHAN**                                                | —                                | **Selesai Penuh** | **89**  | **0** | **89** | **100%**  |
 
 ---
 
@@ -106,6 +106,10 @@ Dokumen ini adalah hasil analisis mendalam terhadap **seluruh berkas spesifikasi
 - [x] **6.8 App Installer & 1-Click Staging**: Katalog aplikasi resmi dengan kloning staging dan push-to-live. ([AppInstallerPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/AppInstallerPage.tsx))
 - [x] **6.9 Database, Email & User Accounts**: Manajemen MariaDB/PostgreSQL, DKIM dual-sign, RBL monitor, dan Impersonation. ([DatabasesPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/DatabasesPage.tsx), [EmailPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/EmailPage.tsx), [AccountsPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/AccountsPage.tsx))
 - [x] **6.10 File Manager (Monaco) & Web Terminal (xterm.js)**: Code editor Monaco syntax highlighting dan terminal web terisolasi UID tenant. ([FileManagerPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/FileManagerPage.tsx), [WebTerminalPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/WebTerminalPage.tsx))
+- [x] **6.11 Collapsible Mini-Sidebar & Grouped Hierarchy (AdminLTE/Bootstrap Pattern)**: Toggle mode (`w-64` vs `w-16`), pengelompokan kategori (Core, Management, Web Services, Access, Security & Ops), floating tooltips, persistent collapse state (`localStorage`), dan badge pills (PHP 8.5, CRS v4, AES-256). ([Sidebar.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/components/Sidebar.tsx))
+- [x] **6.12 Breadcrumbs, Live Health Pill & Notification Center**: Breadcrumb navigation (`Dashboard / Category / View`), live server health badge (`Healthy | Load 0.14`), dan notification center popover dengan unread count. ([Navbar.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/components/Navbar.tsx))
+- [x] **6.13 AdminLTE v4 + Modern Bento Dashboard Fusion**: Header node identity (Ubuntu 26.04 / Debian 13, kernel, uptime, load avg), 4 KPI metric info boxes dengan dynamic progress bars & trend badges, quick actions toolstrip, dual-pane service health matrix, dan live RBL status feed. ([OverviewPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/OverviewPage.tsx))
+- [x] **6.14 Dedicated Security, Packages & Disaster Recovery Views**: Halaman visualisasi WAF ruleset & CrowdSec bans ([SecurityPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/SecurityPage.tsx)), hosting package & feature limits ([PackagesPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/PackagesPage.tsx)), serta Restic encrypted repository & test-restore status ([BackupsPage.tsx](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/frontend/src/pages/BackupsPage.tsx)).
 
 ### Pillar 7: Multi-Factor Authentication (Passkeys & TOTP)
 
