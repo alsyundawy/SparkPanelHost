@@ -14,7 +14,7 @@ ENABLE_LINTERS:
   - MARKDOWN_MARKDOWNLINT
   - PROTOBUF_BUF
 
-FILTER_REGEX_EXCLUDE: "(backend/gen/|frontend/node_modules/|frontend/dist/|dist/|\\.cache/|\\.trunk/)"
+FILTER_REGEX_EXCLUDE: (backend/gen/|frontend/node_modules/|frontend/dist/|dist/|\.cache/|\.trunk/)
 
 MARKDOWN_MARKDOWNLINT_DISABLE_ERRORS: false
 YAML_YAMLLINT_DISABLE_ERRORS: false

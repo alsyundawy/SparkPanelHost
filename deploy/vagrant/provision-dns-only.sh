@@ -24,30 +24,30 @@ echo "==> [DNS-Only Node] Starting automated provisioning..."
 echo "==> [DNS-Only Node] Installing PowerDNS Authoritative and dependencies..."
 apt-get update -qq
 apt-get install -y -qq \
-  pdns-server \
-  pdns-backend-sqlite3 \
-  sqlite3 \
-  curl \
-  jq \
-  nftables \
-  ca-certificates
+	pdns-server \
+	pdns-backend-sqlite3 \
+	sqlite3 \
+	curl \
+	jq \
+	nftables \
+	ca-certificates
 
 # 2. Disable systemd-resolved DNS stub listener to avoid port 53 collision if active
 if systemctl is-active --quiet systemd-resolved 2>/dev/null; then
-  echo "==> [DNS-Only Node] Configuring systemd-resolved to release port 53..."
-  mkdir -p /etc/systemd/resolved.conf.d
-  cat <<'EOF' > /etc/systemd/resolved.conf.d/disable-stub.conf
+	echo "==> [DNS-Only Node] Configuring systemd-resolved to release port 53..."
+	mkdir -p /etc/systemd/resolved.conf.d
+	cat <<'EOF' >/etc/systemd/resolved.conf.d/disable-stub.conf
 [Resolve]
 DNSStubListener=no
 EOF
-  systemctl restart systemd-resolved || true
+	systemctl restart systemd-resolved || true
 fi
 
 # 3. Initialize SQLite3 database schema for PowerDNS Authoritative if missing
 mkdir -p "${PDNS_DB_DIR}"
-if [[ ! -s "${PDNS_DB_FILE}" ]]; then
-  echo "==> [DNS-Only Node] Initializing PowerDNS SQLite3 database schema..."
-  sqlite3 "${PDNS_DB_FILE}" <<'EOF'
+if [[ ! -s ${PDNS_DB_FILE} ]]; then
+	echo "==> [DNS-Only Node] Initializing PowerDNS SQLite3 database schema..."
+	sqlite3 "${PDNS_DB_FILE}" <<'EOF'
 CREATE TABLE IF NOT EXISTS domains (
   id                    INTEGER PRIMARY KEY,
   name                  VARCHAR(255) NOT NULL COLLATE NOCASE,
@@ -124,7 +124,7 @@ fi
 # Set appropriate permissions for PowerDNS daemon user
 PDNS_USER="pdns"
 if id -u "_powerdns" >/dev/null 2>&1; then
-  PDNS_USER="_powerdns"
+	PDNS_USER="_powerdns"
 fi
 chown -R "${PDNS_USER}:${PDNS_USER}" "${PDNS_DB_DIR}"
 chmod 0750 "${PDNS_DB_DIR}"
@@ -132,7 +132,7 @@ chmod 0640 "${PDNS_DB_FILE}"
 
 # 4. Generate hardened PowerDNS configuration with REST API enabled
 echo "==> [DNS-Only Node] Configuring PowerDNS Authoritative and REST API..."
-cat <<EOF > "${PDNS_CONF}"
+cat <<EOF >"${PDNS_CONF}"
 # AetherPanel v8.1 — Hardened PowerDNS Authoritative Config (DNS-Only Node)
 launch=gsqlite3
 gsqlite3-database=${PDNS_DB_FILE}
