@@ -7,8 +7,9 @@ serta memeriksa keunikan ID aplikasi.
 import json
 import sys
 from pathlib import Path
+
 import yaml
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = ROOT_DIR / "recipes" / "schema" / "recipe.schema.json"
@@ -30,7 +31,10 @@ def main() -> None:
             seen_ids.add(app_id)
             print(f"[VALID] {yaml_file.relative_to(ROOT_DIR)}")
         except ValidationError as exc:
-            print(f"[ERROR] {yaml_file.relative_to(ROOT_DIR)}: {exc.message}", file=sys.stderr)
+            print(
+                f"[ERROR] {yaml_file.relative_to(ROOT_DIR)}: {exc.message}",
+                file=sys.stderr,
+            )
             errors += 1
 
     if errors > 0:

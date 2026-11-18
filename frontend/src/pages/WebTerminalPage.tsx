@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
-import { Terminal as XTerm } from '@xterm/xterm';
-import { FitAddon } from '@xterm/addon-fit';
-import '@xterm/xterm/css/xterm.css';
-import { Terminal as TerminalIcon, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useRef } from "react";
+import { Terminal as XTerm } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "@xterm/xterm/css/xterm.css";
+import { Terminal as TerminalIcon, ShieldCheck } from "lucide-react";
 
 export const WebTerminalPage: React.FC = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -12,12 +12,12 @@ export const WebTerminalPage: React.FC = () => {
 
     const term = new XTerm({
       cursorBlink: true,
-      fontFamily: 'JetBrains Mono, monospace',
+      fontFamily: "JetBrains Mono, monospace",
       fontSize: 13,
       theme: {
-        background: '#09090b',
-        foreground: '#fafafa',
-        cursor: '#3b82f6',
+        background: "#09090b",
+        foreground: "#fafafa",
+        cursor: "#3b82f6",
       },
     });
 
@@ -26,16 +26,22 @@ export const WebTerminalPage: React.FC = () => {
     term.open(terminalRef.current);
     fitAddon.fit();
 
-    term.writeln('\x1b[1;34m==============================================================\x1b[0m');
-    term.writeln('\x1b[1;32m  SparkPanelHost v0.1.0 Web Terminal (PTY Session Active)\x1b[0m');
-    term.writeln('  UID/GID dropped to tenant context | cgroups v2 isolated');
-    term.writeln('\x1b[1;34m==============================================================\x1b[0m\r\n');
+    term.writeln(
+      "\x1b[1;34m==============================================================\x1b[0m",
+    );
+    term.writeln(
+      "\x1b[1;32m  SparkPanelHost v0.1.0 Web Terminal (PTY Session Active)\x1b[0m",
+    );
+    term.writeln("  UID/GID dropped to tenant context | cgroups v2 isolated");
+    term.writeln(
+      "\x1b[1;34m==============================================================\x1b[0m\r\n",
+    );
 
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/api/v1/terminal/ws`;
     const ws = new WebSocket(wsUrl);
 
-    ws.binaryType = 'arraybuffer';
+    ws.binaryType = "arraybuffer";
 
     ws.onmessage = (event) => {
       term.write(new Uint8Array(event.data));
@@ -48,10 +54,10 @@ export const WebTerminalPage: React.FC = () => {
     });
 
     const handleResize = () => fitAddon.fit();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       ws.close();
       term.dispose();
     };
@@ -66,7 +72,8 @@ export const WebTerminalPage: React.FC = () => {
             <span>Web SSH Terminal</span>
           </h1>
           <p className="text-xs text-text-secondary mt-0.5">
-            Real-time interactive PTY shell locked to tenant UID/GID and cgroups v2 slice
+            Real-time interactive PTY shell locked to tenant UID/GID and cgroups
+            v2 slice
           </p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-status-success font-semibold">

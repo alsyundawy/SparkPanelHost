@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
+import React, { useState, useEffect } from "react";
+import Editor from "@monaco-editor/react";
 import {
   FileText,
   Save,
@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   Server,
   RefreshCw,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ConfigBackup {
   backup_file: string;
@@ -19,30 +19,37 @@ interface ConfigBackup {
 }
 
 export const ConfigEditorPage: React.FC = () => {
-  const [service, setService] = useState<'nginx' | 'php-fpm' | 'mariadb'>('nginx');
-  const [phpVersion, setPhpVersion] = useState('8.5');
-  const [content, setContent] = useState('');
-  const [filePath, setFilePath] = useState('');
+  const [service, setService] = useState<"nginx" | "php-fpm" | "mariadb">(
+    "nginx",
+  );
+  const [phpVersion, setPhpVersion] = useState("8.5");
+  const [content, setContent] = useState("");
+  const [filePath, setFilePath] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [backups, setBackups] = useState<ConfigBackup[]>([]);
-  const [selectedBackup, setSelectedBackup] = useState('');
+  const [selectedBackup, setSelectedBackup] = useState("");
 
   const fetchConfig = async () => {
     setLoading(true);
     setStatusMessage(null);
-    const subPath = service === 'php-fpm' ? phpVersion : '';
+    const subPath = service === "php-fpm" ? phpVersion : "";
     try {
-      const res = await fetch(`/api/v1/config/${service}?sub_path=${encodeURIComponent(subPath)}`);
+      const res = await fetch(
+        `/api/v1/config/${service}?sub_path=${encodeURIComponent(subPath)}`,
+      );
       const data = await res.json();
       if (res.ok && data.success) {
         setContent(data.content);
         setFilePath(data.file_path);
       } else {
         // Fallback default templates for demo/dev mode
-        if (service === 'nginx') {
-          setFilePath('/etc/nginx/nginx.conf');
+        if (service === "nginx") {
+          setFilePath("/etc/nginx/nginx.conf");
           setContent(`# /etc/nginx/nginx.conf - SparkPanelHost Hardened Nginx
 user www-data;
 worker_processes auto;
@@ -63,7 +70,7 @@ http {
     include /etc/nginx/conf.d/*.conf;
     include /etc/nginx/sites-enabled/*;
 }`);
-        } else if (service === 'php-fpm') {
+        } else if (service === "php-fpm") {
           setFilePath(`/etc/php/${phpVersion}/fpm/php.ini`);
           setContent(`; PHP ${phpVersion} Configuration - SparkPanelHost Hardened
 [PHP]
@@ -85,7 +92,7 @@ log_errors = On
 upload_max_filesize = 64M
 post_max_size = 64M`);
         } else {
-          setFilePath('/etc/mysql/mariadb.conf.d/50-server.cnf');
+          setFilePath("/etc/mysql/mariadb.conf.d/50-server.cnf");
           setContent(`[server]
 [mysqld]
 user                    = mysql
@@ -110,23 +117,36 @@ collation-server        = utf8mb4_unicode_ci`);
         }
       }
     } catch {
-      setStatusMessage({ type: 'error', text: 'Could not connect to config editor endpoint' });
+      setStatusMessage({
+        type: "error",
+        text: "Could not connect to config editor endpoint",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const fetchBackups = async () => {
-    const subPath = service === 'php-fpm' ? phpVersion : '';
+    const subPath = service === "php-fpm" ? phpVersion : "";
     try {
-      const res = await fetch(`/api/v1/config/${service}/backups?sub_path=${encodeURIComponent(subPath)}`);
+      const res = await fetch(
+        `/api/v1/config/${service}/backups?sub_path=${encodeURIComponent(subPath)}`,
+      );
       const data = await res.json();
       if (res.ok && data.success && data.backups) {
         setBackups(data.backups);
       } else {
         setBackups([
-          { backup_file: `${filePath}.bak.20261118020000`, timestamp: '20261118020000', size_bytes: 1420 },
-          { backup_file: `${filePath}.bak.20261117180000`, timestamp: '20261117180000', size_bytes: 1395 },
+          {
+            backup_file: `${filePath}.bak.20261118020000`,
+            timestamp: "20261118020000",
+            size_bytes: 1420,
+          },
+          {
+            backup_file: `${filePath}.bak.20261117180000`,
+            timestamp: "20261117180000",
+            size_bytes: 1395,
+          },
         ]);
       }
     } catch {
@@ -142,28 +162,31 @@ collation-server        = utf8mb4_unicode_ci`);
   const handleSave = async () => {
     setSaving(true);
     setStatusMessage(null);
-    const subPath = service === 'php-fpm' ? phpVersion : '';
+    const subPath = service === "php-fpm" ? phpVersion : "";
     try {
       const res = await fetch(`/api/v1/config/${service}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sub_path: subPath, content }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setStatusMessage({
-          type: 'success',
-          text: `Syntax validation passed! Config saved and service reloaded. Backup created: ${data.backup_path || 'active'}`,
+          type: "success",
+          text: `Syntax validation passed! Config saved and service reloaded. Backup created: ${data.backup_path || "active"}`,
         });
         fetchBackups();
       } else {
         setStatusMessage({
-          type: 'error',
-          text: data.error || 'Syntax validation failed. Config was NOT saved.',
+          type: "error",
+          text: data.error || "Syntax validation failed. Config was NOT saved.",
         });
       }
     } catch {
-      setStatusMessage({ type: 'error', text: 'Failed to communicate with panel-agent daemon' });
+      setStatusMessage({
+        type: "error",
+        text: "Failed to communicate with panel-agent daemon",
+      });
     } finally {
       setSaving(false);
     }
@@ -173,25 +196,31 @@ collation-server        = utf8mb4_unicode_ci`);
     if (!selectedBackup) return;
     setSaving(true);
     setStatusMessage(null);
-    const subPath = service === 'php-fpm' ? phpVersion : '';
+    const subPath = service === "php-fpm" ? phpVersion : "";
     try {
       const res = await fetch(`/api/v1/config/${service}/rollback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sub_path: subPath, backup_timestamp: selectedBackup }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sub_path: subPath,
+          backup_timestamp: selectedBackup,
+        }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setStatusMessage({
-          type: 'success',
+          type: "success",
           text: `Config successfully rolled back to snapshot ${selectedBackup} and service reloaded!`,
         });
         fetchConfig();
       } else {
-        setStatusMessage({ type: 'error', text: data.error || 'Rollback failed' });
+        setStatusMessage({
+          type: "error",
+          text: data.error || "Rollback failed",
+        });
       }
     } catch {
-      setStatusMessage({ type: 'error', text: 'Rollback execution error' });
+      setStatusMessage({ type: "error", text: "Rollback execution error" });
     } finally {
       setSaving(false);
     }
@@ -207,7 +236,8 @@ collation-server        = utf8mb4_unicode_ci`);
             Service Configuration Editor & 1-Click Rollback
           </h1>
           <p className="text-xs text-text-secondary mt-1">
-            Edit Nginx, PHP-FPM, and MariaDB configuration with binary syntax validation and automatic rollbacks.
+            Edit Nginx, PHP-FPM, and MariaDB configuration with binary syntax
+            validation and automatic rollbacks.
           </p>
         </div>
 
@@ -217,7 +247,9 @@ collation-server        = utf8mb4_unicode_ci`);
             disabled={loading}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border-subtle bg-bg-card hover:bg-bg-elevated text-xs font-semibold text-text-primary transition-colors"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
+            />
             <span>Reload</span>
           </button>
           <button
@@ -226,7 +258,9 @@ collation-server        = utf8mb4_unicode_ci`);
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-primary hover:bg-accent-hover text-xs font-semibold text-white shadow-sm transition-colors"
           >
             <Save className="h-3.5 w-3.5" />
-            <span>{saving ? 'Testing & Saving...' : 'Save & Reload Service'}</span>
+            <span>
+              {saving ? "Testing & Saving..." : "Save & Reload Service"}
+            </span>
           </button>
         </div>
       </div>
@@ -235,12 +269,12 @@ collation-server        = utf8mb4_unicode_ci`);
       {statusMessage && (
         <div
           className={`p-3 rounded-lg border text-xs flex items-start gap-2.5 ${
-            statusMessage.type === 'success'
-              ? 'bg-status-success/10 border-status-success/20 text-status-success font-medium'
-              : 'bg-status-danger/10 border-status-danger/20 text-status-danger font-mono'
+            statusMessage.type === "success"
+              ? "bg-status-success/10 border-status-success/20 text-status-success font-medium"
+              : "bg-status-danger/10 border-status-danger/20 text-status-danger font-mono"
           }`}
         >
-          {statusMessage.type === 'success' ? (
+          {statusMessage.type === "success" ? (
             <CheckCircle2 className="h-4 w-4 shrink-0 text-status-success mt-0.5" />
           ) : (
             <AlertTriangle className="h-4 w-4 shrink-0 text-status-danger mt-0.5" />
@@ -254,31 +288,31 @@ collation-server        = utf8mb4_unicode_ci`);
         {/* Service Selector Tabs */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setService('nginx')}
+            onClick={() => setService("nginx")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-              service === 'nginx'
-                ? 'bg-accent-primary text-white'
-                : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated'
+              service === "nginx"
+                ? "bg-accent-primary text-white"
+                : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated"
             }`}
           >
             Nginx (nginx.conf)
           </button>
           <button
-            onClick={() => setService('php-fpm')}
+            onClick={() => setService("php-fpm")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-              service === 'php-fpm'
-                ? 'bg-accent-primary text-white'
-                : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated'
+              service === "php-fpm"
+                ? "bg-accent-primary text-white"
+                : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated"
             }`}
           >
             PHP-FPM (php.ini)
           </button>
           <button
-            onClick={() => setService('mariadb')}
+            onClick={() => setService("mariadb")}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-              service === 'mariadb'
-                ? 'bg-accent-primary text-white'
-                : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated'
+              service === "mariadb"
+                ? "bg-accent-primary text-white"
+                : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated"
             }`}
           >
             MariaDB (50-server.cnf)
@@ -286,9 +320,11 @@ collation-server        = utf8mb4_unicode_ci`);
         </div>
 
         {/* PHP Version Selector */}
-        {service === 'php-fpm' && (
+        {service === "php-fpm" && (
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-text-secondary font-medium">PHP Version:</span>
+            <span className="text-text-secondary font-medium">
+              PHP Version:
+            </span>
             <select
               value={phpVersion}
               onChange={(e) => setPhpVersion(e.target.value)}
@@ -345,16 +381,22 @@ collation-server        = utf8mb4_unicode_ci`);
         <div className="h-[520px]">
           <Editor
             height="100%"
-            language={service === 'php-fpm' ? 'ini' : service === 'nginx' ? 'nginx' : 'ini'}
+            language={
+              service === "php-fpm"
+                ? "ini"
+                : service === "nginx"
+                  ? "nginx"
+                  : "ini"
+            }
             theme="vs-dark"
             value={content}
-            onChange={(val) => setContent(val || '')}
+            onChange={(val) => setContent(val || "")}
             options={{
               minimap: { enabled: true },
               fontSize: 13,
               fontFamily: "'JetBrains Mono', monospace",
               scrollBeyondLastLine: false,
-              wordWrap: 'on',
+              wordWrap: "on",
               automaticLayout: true,
             }}
           />

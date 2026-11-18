@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Database, Plus, Trash2, Download, CheckCircle2 } from 'lucide-react';
-import type { TenantDatabase } from '../types';
+import React, { useState, useEffect } from "react";
+import { Database, Plus, Trash2, Download, CheckCircle2 } from "lucide-react";
+import type { TenantDatabase } from "../types";
 
 export const DatabasesPage: React.FC = () => {
   const [databases, setDatabases] = useState<TenantDatabase[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDB, setNewDB] = useState({
-    db_name: '',
-    db_user: '',
-    password: '',
-    engine: 'mariadb',
+    db_name: "",
+    db_user: "",
+    password: "",
+    engine: "mariadb",
   });
-  const [backupSuccess, setBackupSuccess] = useState('');
+  const [backupSuccess, setBackupSuccess] = useState("");
 
   const fetchDatabases = async () => {
     try {
-      const res = await fetch('/api/v1/databases');
+      const res = await fetch("/api/v1/databases");
       if (res.ok) {
         const data = await res.json();
         setDatabases(data.databases || []);
@@ -29,16 +29,16 @@ export const DatabasesPage: React.FC = () => {
         ? prev
         : [
             {
-              id: 'db-1',
-              user_id: 'usr-1',
-              engine: 'mariadb',
-              db_name: 'tenant_wpdb',
-              db_user: 'tenant_wpuser',
-              charset: 'utf8mb4',
+              id: "db-1",
+              user_id: "usr-1",
+              engine: "mariadb",
+              db_name: "tenant_wpdb",
+              db_user: "tenant_wpuser",
+              charset: "utf8mb4",
               size_mb: 42.5,
               created_at: new Date().toISOString(),
             },
-          ]
+          ],
     );
   };
 
@@ -50,21 +50,23 @@ export const DatabasesPage: React.FC = () => {
     e.preventDefault();
     const created: TenantDatabase = {
       id: `db-${Date.now()}`,
-      user_id: 'usr-1',
+      user_id: "usr-1",
       engine: newDB.engine as any,
       db_name: `tenant_${newDB.db_name}`,
       db_user: `tenant_${newDB.db_user}`,
-      charset: 'utf8mb4',
+      charset: "utf8mb4",
       size_mb: 0.1,
       created_at: new Date().toISOString(),
     };
     setDatabases([...databases, created]);
     setIsModalOpen(false);
-    setNewDB({ db_name: '', db_user: '', password: '', engine: 'mariadb' });
+    setNewDB({ db_name: "", db_user: "", password: "", engine: "mariadb" });
   };
 
   const handleBackup = (name: string) => {
-    setBackupSuccess(`Consistent backup generated for ${name} at /var/panel/tmp/backups/ (SHA-256 verified)`);
+    setBackupSuccess(
+      `Consistent backup generated for ${name} at /var/panel/tmp/backups/ (SHA-256 verified)`,
+    );
   };
 
   return (
@@ -75,7 +77,8 @@ export const DatabasesPage: React.FC = () => {
             Database Management
           </h1>
           <p className="text-xs text-text-secondary mt-0.5">
-            MariaDB 12.3 LTS & PostgreSQL 17/18 Database Engines (utf8mb4 + Hot Physical Backup)
+            MariaDB 12.3 LTS & PostgreSQL 17/18 Database Engines (utf8mb4 + Hot
+            Physical Backup)
           </p>
         </div>
         <button
@@ -110,7 +113,10 @@ export const DatabasesPage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-border-subtle text-text-primary">
               {databases.map((db) => (
-                <tr key={db.id} className="hover:bg-bg-elevated/50 transition-colors">
+                <tr
+                  key={db.id}
+                  className="hover:bg-bg-elevated/50 transition-colors"
+                >
                   <td className="px-4 py-3">
                     <span className="rounded bg-accent-primary/10 px-2 py-0.5 text-[10px] font-bold text-accent-primary uppercase font-mono">
                       {db.engine}
@@ -139,7 +145,9 @@ export const DatabasesPage: React.FC = () => {
                         <Download className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => setDatabases(databases.filter((d) => d.id !== db.id))}
+                        onClick={() =>
+                          setDatabases(databases.filter((d) => d.id !== db.id))
+                        }
                         className="text-text-secondary hover:text-status-danger p-1 rounded transition-colors"
                         title="Delete Database"
                       >
@@ -165,19 +173,27 @@ export const DatabasesPage: React.FC = () => {
 
             <form onSubmit={handleCreate} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Database Engine</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Database Engine
+                </label>
                 <select
                   value={newDB.engine}
-                  onChange={(e) => setNewDB({ ...newDB, engine: e.target.value })}
+                  onChange={(e) =>
+                    setNewDB({ ...newDB, engine: e.target.value })
+                  }
                   className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary focus:outline-none focus:border-accent-primary"
                 >
-                  <option value="mariadb">MariaDB 12.3.4 LTS (Preferred Default)</option>
+                  <option value="mariadb">
+                    MariaDB 12.3.4 LTS (Preferred Default)
+                  </option>
                   <option value="postgresql">PostgreSQL 17/18</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Database Suffix</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Database Suffix
+                </label>
                 <div className="flex items-center">
                   <span className="px-2.5 py-2 rounded-l-lg border border-r-0 border-border-subtle bg-bg-elevated text-text-secondary font-mono">
                     tenant_
@@ -187,14 +203,18 @@ export const DatabasesPage: React.FC = () => {
                     required
                     placeholder="appdb"
                     value={newDB.db_name}
-                    onChange={(e) => setNewDB({ ...newDB, db_name: e.target.value })}
+                    onChange={(e) =>
+                      setNewDB({ ...newDB, db_name: e.target.value })
+                    }
                     className="w-full rounded-r-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">User Suffix</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  User Suffix
+                </label>
                 <div className="flex items-center">
                   <span className="px-2.5 py-2 rounded-l-lg border border-r-0 border-border-subtle bg-bg-elevated text-text-secondary font-mono">
                     tenant_
@@ -204,20 +224,26 @@ export const DatabasesPage: React.FC = () => {
                     required
                     placeholder="appuser"
                     value={newDB.db_user}
-                    onChange={(e) => setNewDB({ ...newDB, db_user: e.target.value })}
+                    onChange={(e) =>
+                      setNewDB({ ...newDB, db_user: e.target.value })
+                    }
                     className="w-full rounded-r-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Password</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Password
+                </label>
                 <input
                   type="password"
                   required
                   placeholder="Strong DB password..."
                   value={newDB.password}
-                  onChange={(e) => setNewDB({ ...newDB, password: e.target.value })}
+                  onChange={(e) =>
+                    setNewDB({ ...newDB, password: e.target.value })
+                  }
                   className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
                 />
               </div>

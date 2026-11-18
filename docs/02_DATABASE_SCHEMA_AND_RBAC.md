@@ -1,9 +1,11 @@
 <!-- markdownlint-disable -->
+
 # 02. Skema Database Relasional & Sistem RBAC (v8.1)
 
-Database internal panel menggunakan **SQLite (WAL Mode + Foreign Keys ON)** untuk instalasi single-node dan **100% valid secara sintaks maupun urutan dependensi *foreign key* pada PostgreSQL 17/18+** untuk mode multi-server cluster.
+Database internal panel menggunakan **SQLite (WAL Mode + Foreign Keys ON)** untuk instalasi single-node dan **100% valid secara sintaks maupun urutan dependensi _foreign key_ pada PostgreSQL 17/18+** untuk mode multi-server cluster.
 
 **Penyempurnaan v8.1 dibanding v8.1:**
+
 - Menambahkan tabel **DNS Clustering** (`dns_clusters`, `dns_cluster_nodes`, `dns_zone_sync_status`) untuk mendukung mode WHM DNS Only style.
 - Memperbarui komentar versi dan stack target (MariaDB 12.3.4, Rspamd 4.3.0, CrowdSec 1.8.2, CRS 4.30).
 
@@ -371,10 +373,10 @@ CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
 
 ## 2. Matriks Otorisasi RBAC 3-Tingkat (`superadmin`, `reseller`, `tenant`)
 
-| Resource / Operasi | `superadmin` (WHM) | `reseller` | `tenant` (cPanel) | Penegakan Middleware |
-| :--- | :---: | :---: | :---: | :--- |
-| Global Server Config, Firewall (`nftables`/CrowdSec), Backup Destinations | Ya | Tidak | Tidak | `RequireRole("superadmin")` |
-| Buat/Suspend/Impersonate Akun Tenant | Semua Akun | Hanya Akun Milik Reseller (`reseller_id`) | Tidak | Validasi kuota `reseller_limits` + audit log |
-| Kelola Domain, Multi-PHP (8.2–8.6), SSL ACME ARI, Coraza WAF Mode | Semua Akun | Akun Binaan | Milik Sendiri | `domain.user_id == claims.UserID` + `CheckFeature("domains")` |
-| App Installer, Staging Push-to-Live, Git Deploy, Node.js/Python | Semua Akun | Akun Binaan | Milik Sendiri | Validasi `packages.allow_*` & SHA-256 manifes |
-| File Manager (`openat2`) & Web SSH Terminal (`xterm.js`) | Via Impersonate (tercatat) | Via Impersonate (tercatat) | Milik Sendiri | Pekerja turun ke `user.linux_uid` terkunci di `/home/<username>` |
+| Resource / Operasi                                                        |     `superadmin` (WHM)     |                `reseller`                 | `tenant` (cPanel) | Penegakan Middleware                                             |
+| :------------------------------------------------------------------------ | :------------------------: | :---------------------------------------: | :---------------: | :--------------------------------------------------------------- |
+| Global Server Config, Firewall (`nftables`/CrowdSec), Backup Destinations |             Ya             |                   Tidak                   |       Tidak       | `RequireRole("superadmin")`                                      |
+| Buat/Suspend/Impersonate Akun Tenant                                      |         Semua Akun         | Hanya Akun Milik Reseller (`reseller_id`) |       Tidak       | Validasi kuota `reseller_limits` + audit log                     |
+| Kelola Domain, Multi-PHP (8.2–8.6), SSL ACME ARI, Coraza WAF Mode         |         Semua Akun         |                Akun Binaan                |   Milik Sendiri   | `domain.user_id == claims.UserID` + `CheckFeature("domains")`    |
+| App Installer, Staging Push-to-Live, Git Deploy, Node.js/Python           |         Semua Akun         |                Akun Binaan                |   Milik Sendiri   | Validasi `packages.allow_*` & SHA-256 manifes                    |
+| File Manager (`openat2`) & Web SSH Terminal (`xterm.js`)                  | Via Impersonate (tercatat) |        Via Impersonate (tercatat)         |   Milik Sendiri   | Pekerja turun ke `user.linux_uid` terkunci di `/home/<username>` |

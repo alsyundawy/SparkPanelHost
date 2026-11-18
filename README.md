@@ -1,11 +1,12 @@
 <!-- markdownlint-disable -->
+
 # SparkPanelHost (v0.1.0)
 
 [![MegaLinter](https://github.com/alsyundawy/SparkPanelHost/actions/workflows/megalinter.yml/badge.svg)](https://github.com/alsyundawy/SparkPanelHost/actions/workflows/megalinter.yml)
 [![CI Security & Verification](https://github.com/alsyundawy/SparkPanelHost/actions/workflows/ci.yml)](https://github.com/alsyundawy/SparkPanelHost/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
-**SparkPanelHost** adalah *All-in-One Linux Web Hosting Control Panel* modern, aman, dan berkinerja tinggi yang dirancang sebagai alternatif tangguh untuk cPanel/WHM, Plesk, dan CloudPanel. Dibangun secara native untuk **Ubuntu 26.04 LTS (Resolute) / 24.04 LTS (Noble)** dan **Debian 13 (Trixie) / 12 (Bookworm)**, SparkPanelHost siap digunakan untuk hosting personal, reseller hosting (RBAC 3-tingkat), hingga otomasi billing komersial (WHMCS/Blesta).
+**SparkPanelHost** adalah _All-in-One Linux Web Hosting Control Panel_ modern, aman, dan berkinerja tinggi yang dirancang sebagai alternatif tangguh untuk cPanel/WHM, Plesk, dan CloudPanel. Dibangun secara native untuk **Ubuntu 26.04 LTS (Resolute) / 24.04 LTS (Noble)** dan **Debian 13 (Trixie) / 12 (Bookworm)**, SparkPanelHost siap digunakan untuk hosting personal, reseller hosting (RBAC 3-tingkat), hingga otomasi billing komersial (WHMCS/Blesta).
 
 ---
 

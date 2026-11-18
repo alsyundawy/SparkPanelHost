@@ -1,7 +1,8 @@
 <!-- markdownlint-disable -->
+
 # 01. Kontrak gRPC Protobuf & Daemon Go Zero-Shell (`panel-agent` v8.1)
 
-Dokumen ini menjabarkan arsitektur keamanan tingkat sistem operasi pada `panel-agent` untuk meniadakan **CWE-78** (*OS Command Injection*), **CWE-426** (*Untrusted Search Path / Env Injection*), **CWE-22 / CWE-59 / CWE-362** (*Path Traversal & Symlink TOCTOU*), **CWE-409** (*Zip Bomb*), dan **CWE-918 / CWE-494** (*SSRF & Unverified Code Download*).
+Dokumen ini menjabarkan arsitektur keamanan tingkat sistem operasi pada `panel-agent` untuk meniadakan **CWE-78** (_OS Command Injection_), **CWE-426** (_Untrusted Search Path / Env Injection_), **CWE-22 / CWE-59 / CWE-362** (_Path Traversal & Symlink TOCTOU_), **CWE-409** (_Zip Bomb_), dan **CWE-918 / CWE-494** (_SSRF & Unverified Code Download_).
 
 ---
 
@@ -67,7 +68,7 @@ func (p *PeerCreds) ServerHandshake(rawConn net.Conn) (net.Conn, credentials.Aut
 
 ## 2. Zero-Shell Execution Runner dengan Sanitized Environment (`execsafe/runner.go`)
 
-Tidak ada satu pun pemanggilan `sh -c` atau `bash -c`. Selain daftar biner eksplisit (*allowlist*), `cmd.Env` selalu ditimpa dengan environment minimal yang deterministik untuk mencegah injeksi `LD_PRELOAD` maupun manipulasi `PATH`.
+Tidak ada satu pun pemanggilan `sh -c` atau `bash -c`. Selain daftar biner eksplisit (_allowlist_), `cmd.Env` selalu ditimpa dengan environment minimal yang deterministik untuk mencegah injeksi `LD_PRELOAD` maupun manipulasi `PATH`.
 
 ```go
 package execsafe
@@ -136,7 +137,7 @@ func RunDirect(ctx context.Context, timeout time.Duration, binary string, args .
 
 ## 3. Kernel-Enforced Safe File & Archive Extraction (`openat2` + Anti-Zip-Bomb)
 
-Pada v6.0, penggunaan `unix.O_NOFOLLOW` hanya memeriksa komponen nama file terakhir, sehingga masih rentan terhadap *intermediate directory symlink* (misalnya `public_html/subdir -> /etc`). Pada **v8.1**, setiap pembukaan direktori dan file di dalam direktori tenant menggunakan syscall Linux **`unix.Openat2`** dengan **`unix.RESOLVE_BENEATH | unix.RESOLVE_NO_SYMLINKS`**, didukung untuk arsip **`.tar.gz` maupun `.zip`**, serta dibatasi ukuran total ekstraksinya untuk mencegah **Zip Bomb (CWE-409)**.
+Pada v6.0, penggunaan `unix.O_NOFOLLOW` hanya memeriksa komponen nama file terakhir, sehingga masih rentan terhadap _intermediate directory symlink_ (misalnya `public_html/subdir -> /etc`). Pada **v8.1**, setiap pembukaan direktori dan file di dalam direktori tenant menggunakan syscall Linux **`unix.Openat2`** dengan **`unix.RESOLVE_BENEATH | unix.RESOLVE_NO_SYMLINKS`**, didukung untuk arsip **`.tar.gz` maupun `.zip`**, serta dibatasi ukuran total ekstraksinya untuk mencegah **Zip Bomb (CWE-409)**.
 
 ```go
 package fileops
@@ -405,7 +406,7 @@ func ExtractArchiveAsUser(archivePath, destDir string, uid, gid int, stripCompon
 
 ## 4. SSRF-Safe Upstream Downloader (`netfetch/safehttp.go`)
 
-Mencegah **CWE-918 (SSRF)** saat `panel-agent` mengunduh arsip aplikasi dari URL manifes dengan memvalidasi host HTTPS dan memblokir seluruh alamat IP non-publik langsung pada lapisan socket dialer (*anti-DNS-rebinding*).
+Mencegah **CWE-918 (SSRF)** saat `panel-agent` mengunduh arsip aplikasi dari URL manifes dengan memvalidasi host HTTPS dan memblokir seluruh alamat IP non-publik langsung pada lapisan socket dialer (_anti-DNS-rebinding_).
 
 ```go
 package netfetch

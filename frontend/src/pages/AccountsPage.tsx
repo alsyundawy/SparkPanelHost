@@ -1,26 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Users, Plus, UserCheck, ShieldAlert } from 'lucide-react';
-import type { User } from '../types';
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { Users, Plus, UserCheck, ShieldAlert } from "lucide-react";
+import type { User } from "../types";
 
 interface AccountsPageProps {
   onImpersonate: (user: User) => void;
 }
 
-export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => {
+export const AccountsPage: React.FC<AccountsPageProps> = ({
+  onImpersonate,
+}) => {
   const { t } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
-    username: '',
-    email: '',
-    password: '',
-    role: 'tenant',
+    username: "",
+    email: "",
+    password: "",
+    role: "tenant",
   });
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('/api/v1/users');
+      const res = await fetch("/api/v1/users");
       if (res.ok) {
         const data = await res.json();
         setUsers(data.users || []);
@@ -34,30 +36,30 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
         ? prev
         : [
             {
-              id: 'usr-1',
-              username: 'alpha',
-              email: 'alpha@example.com',
-              role: 'tenant',
+              id: "usr-1",
+              username: "alpha",
+              email: "alpha@example.com",
+              role: "tenant",
               linux_uid: 2001,
               linux_gid: 2001,
-              locale: 'id',
-              theme: 'dark',
-              status: 'active',
+              locale: "id",
+              theme: "dark",
+              status: "active",
               created_at: new Date().toISOString(),
             },
             {
-              id: 'usr-2',
-              username: 'beta',
-              email: 'beta@example.com',
-              role: 'tenant',
+              id: "usr-2",
+              username: "beta",
+              email: "beta@example.com",
+              role: "tenant",
               linux_uid: 2002,
               linux_gid: 2002,
-              locale: 'en',
-              theme: 'dark',
-              status: 'suspended',
+              locale: "en",
+              theme: "dark",
+              status: "suspended",
               created_at: new Date().toISOString(),
             },
-          ]
+          ],
     );
   };
 
@@ -74,14 +76,14 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
       role: newUser.role as any,
       linux_uid: 2000 + Math.floor(Math.random() * 5000),
       linux_gid: 2000 + Math.floor(Math.random() * 5000),
-      locale: 'id',
-      theme: 'dark',
-      status: 'active',
+      locale: "id",
+      theme: "dark",
+      status: "active",
       created_at: new Date().toISOString(),
     };
     setUsers([...users, created]);
     setIsModalOpen(false);
-    setNewUser({ username: '', email: '', password: '', role: 'tenant' });
+    setNewUser({ username: "", email: "", password: "", role: "tenant" });
   };
 
   const toggleSuspend = (id: string) => {
@@ -90,11 +92,11 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
         if (u.id === id) {
           return {
             ...u,
-            status: u.status === 'active' ? 'suspended' : 'active',
+            status: u.status === "active" ? "suspended" : "active",
           };
         }
         return u;
-      })
+      }),
     );
   };
 
@@ -104,10 +106,11 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-text-primary">
-            {t('nav.accounts', 'Hosting Accounts')}
+            {t("nav.accounts", "Hosting Accounts")}
           </h1>
           <p className="text-xs text-text-secondary mt-0.5">
-            Admin WHM Account Orchestration & Impersonation (Zero-Trust Isolated Tenants)
+            Admin WHM Account Orchestration & Impersonation (Zero-Trust Isolated
+            Tenants)
           </p>
         </div>
         <button
@@ -135,7 +138,10 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
             </thead>
             <tbody className="divide-y divide-border-subtle text-text-primary">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-bg-elevated/50 transition-colors">
+                <tr
+                  key={u.id}
+                  className="hover:bg-bg-elevated/50 transition-colors"
+                >
                   <td className="px-4 py-3 font-semibold flex items-center gap-2">
                     <Users className="h-3.5 w-3.5 text-accent-primary" />
                     <span>{u.username}</span>
@@ -152,9 +158,9 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
                   <td className="px-4 py-3">
                     <span
                       className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-                        u.status === 'active'
-                          ? 'bg-status-success/15 text-status-success'
-                          : 'bg-status-danger/15 text-status-danger'
+                        u.status === "active"
+                          ? "bg-status-success/15 text-status-success"
+                          : "bg-status-danger/15 text-status-danger"
                       }`}
                     >
                       {u.status}
@@ -175,7 +181,11 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
                       <button
                         onClick={() => toggleSuspend(u.id)}
                         className="p-1 text-text-secondary hover:text-status-danger rounded transition-colors"
-                        title={u.status === 'active' ? 'Suspend Account' : 'Unsuspend Account'}
+                        title={
+                          u.status === "active"
+                            ? "Suspend Account"
+                            : "Unsuspend Account"
+                        }
                       >
                         <ShieldAlert className="h-4 w-4" />
                       </button>
@@ -208,31 +218,44 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({ onImpersonate }) => 
                   placeholder="acmeclient"
                   pattern="^[a-z][a-z0-9]{2,15}$"
                   value={newUser.username}
-                  onChange={(e) => setNewUser({ ...newUser, username: e.target.value.toLowerCase() })}
+                  onChange={(e) =>
+                    setNewUser({
+                      ...newUser,
+                      username: e.target.value.toLowerCase(),
+                    })
+                  }
                   className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Contact Email</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Contact Email
+                </label>
                 <input
                   type="email"
                   required
                   placeholder="client@example.com"
                   value={newUser.email}
-                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, email: e.target.value })
+                  }
                   className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary focus:outline-none focus:border-accent-primary"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Password</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Password
+                </label>
                 <input
                   type="password"
                   required
                   placeholder="Strong account password..."
                   value={newUser.password}
-                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  onChange={(e) =>
+                    setNewUser({ ...newUser, password: e.target.value })
+                  }
                   className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary focus:outline-none focus:border-accent-primary font-mono"
                 />
               </div>

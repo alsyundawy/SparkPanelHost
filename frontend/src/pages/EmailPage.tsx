@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Mail, Plus, ShieldCheck, Key, CheckCircle2, Copy } from 'lucide-react';
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Mail, Plus, ShieldCheck, Key, CheckCircle2, Copy } from "lucide-react";
 
 interface MailboxItem {
   id: string;
@@ -11,22 +11,28 @@ interface MailboxItem {
 
 export const EmailPage: React.FC = () => {
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'boxes' | 'dkim' | 'rbl'>('boxes');
+  const [activeTab, setActiveTab] = useState<"boxes" | "dkim" | "rbl">("boxes");
   const [mailboxes, setMailboxes] = useState<MailboxItem[]>([
-    { id: 'mb-1', email: 'admin@example.com', quota_mb: 2048, active: true },
-    { id: 'mb-2', email: 'support@example.com', quota_mb: 1024, active: true },
+    { id: "mb-1", email: "admin@example.com", quota_mb: 2048, active: true },
+    { id: "mb-2", email: "support@example.com", quota_mb: 1024, active: true },
   ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newMail, setNewMail] = useState({ localPart: '', password: '', quota: 2048 });
-  const [copiedKey, setCopiedKey] = useState('');
+  const [newMail, setNewMail] = useState({
+    localPart: "",
+    password: "",
+    quota: 2048,
+  });
+  const [copiedKey, setCopiedKey] = useState("");
 
-  const rsaKey = 'v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3...';
-  const ed25519Key = 'v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7Ty4x8V1v8K3tK9yL1a9Z0...';
+  const rsaKey =
+    "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3...";
+  const ed25519Key =
+    "v=DKIM1; k=ed25519; p=11qYAYKxCrfVS/7Ty4x8V1v8K3tK9yL1a9Z0...";
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(label);
-    setTimeout(() => setCopiedKey(''), 2000);
+    setTimeout(() => setCopiedKey(""), 2000);
   };
 
   const handleCreate = (e: React.FormEvent) => {
@@ -39,7 +45,7 @@ export const EmailPage: React.FC = () => {
     };
     setMailboxes([...mailboxes, created]);
     setIsModalOpen(false);
-    setNewMail({ localPart: '', password: '', quota: 2048 });
+    setNewMail({ localPart: "", password: "", quota: 2048 });
   };
 
   return (
@@ -48,10 +54,11 @@ export const EmailPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-text-primary">
-            {t('nav.email', 'Email Hosting & Deliverability')}
+            {t("nav.email", "Email Hosting & Deliverability")}
           </h1>
           <p className="text-xs text-text-secondary mt-0.5">
-            Postfix + Dovecot 2.4.5 + Rspamd 4.3 (RSA + Ed25519 Dual-Signing, MTA-STS, RBL Monitor)
+            Postfix + Dovecot 2.4.5 + Rspamd 4.3 (RSA + Ed25519 Dual-Signing,
+            MTA-STS, RBL Monitor)
           </p>
         </div>
         <button
@@ -66,31 +73,31 @@ export const EmailPage: React.FC = () => {
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-border-subtle text-xs pb-1">
         <button
-          onClick={() => setActiveTab('boxes')}
+          onClick={() => setActiveTab("boxes")}
           className={`px-3 py-1.5 font-semibold transition-colors ${
-            activeTab === 'boxes'
-              ? 'border-b-2 border-accent-primary text-accent-primary'
-              : 'text-text-secondary hover:text-text-primary'
+            activeTab === "boxes"
+              ? "border-b-2 border-accent-primary text-accent-primary"
+              : "text-text-secondary hover:text-text-primary"
           }`}
         >
           Mailboxes & Quotas
         </button>
         <button
-          onClick={() => setActiveTab('dkim')}
+          onClick={() => setActiveTab("dkim")}
           className={`px-3 py-1.5 font-semibold transition-colors ${
-            activeTab === 'dkim'
-              ? 'border-b-2 border-accent-primary text-accent-primary'
-              : 'text-text-secondary hover:text-text-primary'
+            activeTab === "dkim"
+              ? "border-b-2 border-accent-primary text-accent-primary"
+              : "text-text-secondary hover:text-text-primary"
           }`}
         >
           DKIM Dual-Signing & MTA-STS
         </button>
         <button
-          onClick={() => setActiveTab('rbl')}
+          onClick={() => setActiveTab("rbl")}
           className={`px-3 py-1.5 font-semibold transition-colors ${
-            activeTab === 'rbl'
-              ? 'border-b-2 border-accent-primary text-accent-primary'
-              : 'text-text-secondary hover:text-text-primary'
+            activeTab === "rbl"
+              ? "border-b-2 border-accent-primary text-accent-primary"
+              : "text-text-secondary hover:text-text-primary"
           }`}
         >
           RBL Reputation Monitor
@@ -98,7 +105,7 @@ export const EmailPage: React.FC = () => {
       </div>
 
       {/* Tab: Mailboxes */}
-      {activeTab === 'boxes' && (
+      {activeTab === "boxes" && (
         <div className="rounded-xl border border-border-subtle bg-bg-card overflow-hidden">
           <table className="w-full text-left text-xs">
             <thead className="bg-bg-elevated border-b border-border-subtle text-text-secondary font-semibold">
@@ -111,7 +118,10 @@ export const EmailPage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-border-subtle text-text-primary">
               {mailboxes.map((mb) => (
-                <tr key={mb.id} className="hover:bg-bg-elevated/50 transition-colors">
+                <tr
+                  key={mb.id}
+                  className="hover:bg-bg-elevated/50 transition-colors"
+                >
                   <td className="px-4 py-3 font-semibold flex items-center gap-2">
                     <Mail className="h-3.5 w-3.5 text-accent-primary" />
                     <span>{mb.email}</span>
@@ -135,7 +145,7 @@ export const EmailPage: React.FC = () => {
       )}
 
       {/* Tab: DKIM & Deliverability */}
-      {activeTab === 'dkim' && (
+      {activeTab === "dkim" && (
         <div className="space-y-4">
           <div className="rounded-xl border border-border-subtle bg-bg-card p-5">
             <h2 className="text-sm font-bold text-text-primary flex items-center gap-2 mb-3">
@@ -145,13 +155,17 @@ export const EmailPage: React.FC = () => {
             <div className="space-y-3 text-xs">
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-text-primary">Selector: default._domainkey (RSA-2048)</span>
+                  <span className="font-semibold text-text-primary">
+                    Selector: default._domainkey (RSA-2048)
+                  </span>
                   <button
-                    onClick={() => copyToClipboard(rsaKey, 'rsa')}
+                    onClick={() => copyToClipboard(rsaKey, "rsa")}
                     className="flex items-center gap-1 text-[11px] text-accent-primary hover:underline"
                   >
                     <Copy className="h-3 w-3" />
-                    <span>{copiedKey === 'rsa' ? 'Copied!' : 'Copy TXT Value'}</span>
+                    <span>
+                      {copiedKey === "rsa" ? "Copied!" : "Copy TXT Value"}
+                    </span>
                   </button>
                 </div>
                 <div className="rounded-lg bg-bg-elevated border border-border-subtle p-2 font-mono text-[11px] break-all text-text-secondary">
@@ -161,13 +175,17 @@ export const EmailPage: React.FC = () => {
 
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-semibold text-text-primary">Selector: ed25519._domainkey (Ed25519 Modern)</span>
+                  <span className="font-semibold text-text-primary">
+                    Selector: ed25519._domainkey (Ed25519 Modern)
+                  </span>
                   <button
-                    onClick={() => copyToClipboard(ed25519Key, 'ed')}
+                    onClick={() => copyToClipboard(ed25519Key, "ed")}
                     className="flex items-center gap-1 text-[11px] text-accent-primary hover:underline"
                   >
                     <Copy className="h-3 w-3" />
-                    <span>{copiedKey === 'ed' ? 'Copied!' : 'Copy TXT Value'}</span>
+                    <span>
+                      {copiedKey === "ed" ? "Copied!" : "Copy TXT Value"}
+                    </span>
                   </button>
                 </div>
                 <div className="rounded-lg bg-bg-elevated border border-border-subtle p-2 font-mono text-[11px] break-all text-text-secondary">
@@ -180,7 +198,7 @@ export const EmailPage: React.FC = () => {
       )}
 
       {/* Tab: RBL Monitor */}
-      {activeTab === 'rbl' && (
+      {activeTab === "rbl" && (
         <div className="rounded-xl border border-border-subtle bg-bg-card p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-bold text-text-primary flex items-center gap-2">
@@ -193,19 +211,23 @@ export const EmailPage: React.FC = () => {
           </div>
 
           <div className="space-y-2 text-xs">
-            {['zen.spamhaus.org', 'bl.spamcop.net', 'b.barracudacentral.org', 'dnsbl.sorbs.net', 'psbl.surriel.com'].map(
-              (rbl) => (
-                <div
-                  key={rbl}
-                  className="flex items-center justify-between p-3 rounded-lg border border-border-subtle bg-bg-elevated"
-                >
-                  <span className="font-mono text-text-primary">{rbl}</span>
-                  <span className="flex items-center gap-1.5 text-status-success font-semibold text-[11px]">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> Clean (Not Listed)
-                  </span>
-                </div>
-              )
-            )}
+            {[
+              "zen.spamhaus.org",
+              "bl.spamcop.net",
+              "b.barracudacentral.org",
+              "dnsbl.sorbs.net",
+              "psbl.surriel.com",
+            ].map((rbl) => (
+              <div
+                key={rbl}
+                className="flex items-center justify-between p-3 rounded-lg border border-border-subtle bg-bg-elevated"
+              >
+                <span className="font-mono text-text-primary">{rbl}</span>
+                <span className="flex items-center gap-1.5 text-status-success font-semibold text-[11px]">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Clean (Not Listed)
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -221,14 +243,18 @@ export const EmailPage: React.FC = () => {
 
             <form onSubmit={handleCreate} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Email Address</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Email Address
+                </label>
                 <div className="flex items-center">
                   <input
                     type="text"
                     required
                     placeholder="user"
                     value={newMail.localPart}
-                    onChange={(e) => setNewMail({ ...newMail, localPart: e.target.value })}
+                    onChange={(e) =>
+                      setNewMail({ ...newMail, localPart: e.target.value })
+                    }
                     className="w-full rounded-l-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-primary"
                   />
                   <span className="px-3 py-2 rounded-r-lg border border-l-0 border-border-subtle bg-bg-elevated text-text-secondary font-mono">
@@ -238,24 +264,35 @@ export const EmailPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Password</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Password
+                </label>
                 <input
                   type="password"
                   required
                   placeholder="Strong password..."
                   value={newMail.password}
-                  onChange={(e) => setNewMail({ ...newMail, password: e.target.value })}
+                  onChange={(e) =>
+                    setNewMail({ ...newMail, password: e.target.value })
+                  }
                   className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-primary"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-text-secondary mb-1">Quota (MB)</label>
+                <label className="block font-semibold text-text-secondary mb-1">
+                  Quota (MB)
+                </label>
                 <input
                   type="number"
                   required
                   value={newMail.quota}
-                  onChange={(e) => setNewMail({ ...newMail, quota: parseInt(e.target.value) || 1024 })}
+                  onChange={(e) =>
+                    setNewMail({
+                      ...newMail,
+                      quota: parseInt(e.target.value) || 1024,
+                    })
+                  }
                   className="w-full rounded-lg border border-border-subtle bg-bg-elevated px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-primary"
                 />
               </div>

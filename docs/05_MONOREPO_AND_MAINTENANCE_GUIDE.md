@@ -1,4 +1,5 @@
 <!-- markdownlint-disable -->
+
 # 05. Struktur Monorepo, Otomasi CI/CD & Panduan Maintenance (v8.1)
 
 ## 1. Struktur Monorepo Lengkap (`aetherpanel/`)
@@ -61,10 +62,10 @@ aetherpanel/
 ## 2. Empat Pilar Pemeliharaan Jangka Panjang
 
 1. **Pembaruan Manifes App Installer Otomatis (Harian via GitHub Actions):**
-   `.github/workflows/auto-update-manifests.yml` menjalankan `scripts/update_manifests.py` setiap hari pukul `02:00 UTC`, mengambil rilis stabil terbaru dari upstream resmi dengan *host allowlist*, menghitung digest **SHA-256**, memvalidasi terhadap `recipe.schema.json`, dan membuat Pull Request otomatis.
+   `.github/workflows/auto-update-manifests.yml` menjalankan `scripts/update_manifests.py` setiap hari pukul `02:00 UTC`, mengambil rilis stabil terbaru dari upstream resmi dengan _host allowlist_, menghitung digest **SHA-256**, memvalidasi terhadap `recipe.schema.json`, dan membuat Pull Request otomatis.
 2. **Siklus Hidup OS & Multi-PHP (6 Bulanan – Tahunan):**
    Penambahan versi PHP baru setiap rilis November ke driver `phpfpm` dan penandaan versi EOL (seperti **PHP 8.2 pada 31 Desember 2026**) melalui `useFeatureGate.ts`.
 3. **Tuning Profil OWASP CRS v4 & Coraza WAF:**
-   Pembaruan aturan OWASP CRS v4 serta pengujian pengecualian *false-positive* untuk CMS/E-Commerce modern (WordPress Gutenberg, PrestaShop, Flarum).
+   Pembaruan aturan OWASP CRS v4 serta pengujian pengecualian _false-positive_ untuk CMS/E-Commerce modern (WordPress Gutenberg, PrestaShop, Flarum).
 4. **Gate Keamanan CI/CD Berkelanjutan:**
    Setiap Pull Request wajib lolos `govulncheck`, `gosec`, `buf lint`, `trivy fs`, `go test -race`, dan `verify_recipes.py`.

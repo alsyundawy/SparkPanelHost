@@ -26,19 +26,11 @@
     },
     "category": {
       "type": "string",
-      "enum": [
-        "cms",
-        "forum",
-        "marketplace",
-        "webmail"
-      ]
+      "enum": ["cms", "forum", "marketplace", "webmail"]
     },
     "description": {
       "type": "object",
-      "required": [
-        "id",
-        "en"
-      ],
+      "required": ["id", "en"],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -61,17 +53,12 @@
     },
     "upstream": {
       "type": "object",
-      "required": [
-        "provider"
-      ],
+      "required": ["provider"],
       "additionalProperties": false,
       "properties": {
         "provider": {
           "type": "string",
-          "enum": [
-            "wordpress_org",
-            "github_release"
-          ]
+          "enum": ["wordpress_org", "github_release"]
         },
         "slug": {
           "type": "string"
@@ -87,11 +74,7 @@
     },
     "source": {
       "type": "object",
-      "required": [
-        "url",
-        "sha256",
-        "strip_components"
-      ],
+      "required": ["url", "sha256", "strip_components"],
       "additionalProperties": false,
       "properties": {
         "url": {
@@ -122,22 +105,11 @@
       "properties": {
         "php_min": {
           "type": "string",
-          "enum": [
-            "8.2",
-            "8.3",
-            "8.4",
-            "8.5",
-            "8.6"
-          ]
+          "enum": ["8.2", "8.3", "8.4", "8.5", "8.6"]
         },
         "php_recommended": {
           "type": "string",
-          "enum": [
-            "8.3",
-            "8.4",
-            "8.5",
-            "8.6"
-          ]
+          "enum": ["8.3", "8.4", "8.5", "8.6"]
         },
         "php_extensions": {
           "type": "array",
@@ -149,12 +121,7 @@
         },
         "database": {
           "type": "string",
-          "enum": [
-            "mariadb",
-            "postgresql",
-            "sqlite",
-            "none"
-          ]
+          "enum": ["mariadb", "postgresql", "sqlite", "none"]
         },
         "disk_mb": {
           "type": "integer",

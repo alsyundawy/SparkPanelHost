@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { History, ShieldCheck, Hash } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { History, ShieldCheck, Hash } from "lucide-react";
 
 interface AuditLogEntry {
   id: number;
@@ -17,7 +17,7 @@ export const AuditLogsPage: React.FC = () => {
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
 
   useEffect(() => {
-    fetch('/api/v1/audit-logs')
+    fetch("/api/v1/audit-logs")
       .then((res) => res.json())
       .then((data) => {
         if (data.logs) {
@@ -29,22 +29,26 @@ export const AuditLogsPage: React.FC = () => {
         setLogs([
           {
             id: 3,
-            actor_user_id: 'admin',
-            action: 'auth.impersonate',
-            target_resource: 'user:usr-1',
-            source_ip: '127.0.0.1',
-            prev_hash: '9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b',
-            entry_hash: '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
+            actor_user_id: "admin",
+            action: "auth.impersonate",
+            target_resource: "user:usr-1",
+            source_ip: "127.0.0.1",
+            prev_hash:
+              "9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b",
+            entry_hash:
+              "1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b",
             created_at: new Date().toISOString(),
           },
           {
             id: 2,
-            actor_user_id: 'admin',
-            action: 'domain.create',
-            target_resource: 'domain:example.com',
-            source_ip: '127.0.0.1',
-            prev_hash: '0000000000000000000000000000000000000000000000000000000000000000',
-            entry_hash: '9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b',
+            actor_user_id: "admin",
+            action: "domain.create",
+            target_resource: "domain:example.com",
+            source_ip: "127.0.0.1",
+            prev_hash:
+              "0000000000000000000000000000000000000000000000000000000000000000",
+            entry_hash:
+              "9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b",
             created_at: new Date(Date.now() - 3600000).toISOString(),
           },
         ]);
@@ -60,7 +64,8 @@ export const AuditLogsPage: React.FC = () => {
             <span>Immutable Hash-Chained Audit Log</span>
           </h1>
           <p className="text-xs text-text-secondary mt-0.5">
-            Cryptographic SHA-256 chain verification (Anti-tamper audit trail for all admin & tenant actions)
+            Cryptographic SHA-256 chain verification (Anti-tamper audit trail
+            for all admin & tenant actions)
           </p>
         </div>
         <div className="flex items-center gap-1.5 text-xs text-status-success font-semibold">
@@ -85,8 +90,13 @@ export const AuditLogsPage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-border-subtle text-text-primary">
               {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-bg-elevated/50 transition-colors">
-                  <td className="px-4 py-3 font-mono tabular-nums text-text-secondary">#{log.id}</td>
+                <tr
+                  key={log.id}
+                  className="hover:bg-bg-elevated/50 transition-colors"
+                >
+                  <td className="px-4 py-3 font-mono tabular-nums text-text-secondary">
+                    #{log.id}
+                  </td>
                   <td className="px-4 py-3">
                     <span className="font-semibold">{log.actor_user_id}</span>
                     {log.impersonator_id && (
@@ -103,9 +113,14 @@ export const AuditLogsPage: React.FC = () => {
                   <td className="px-4 py-3 font-mono text-text-secondary text-[11px]">
                     {log.target_resource}
                   </td>
-                  <td className="px-4 py-3 font-mono text-text-secondary text-[11px]">{log.source_ip}</td>
+                  <td className="px-4 py-3 font-mono text-text-secondary text-[11px]">
+                    {log.source_ip}
+                  </td>
                   <td className="px-4 py-3 font-mono text-[10px] text-text-secondary max-w-[140px] truncate">
-                    <span className="flex items-center gap-1" title={log.entry_hash}>
+                    <span
+                      className="flex items-center gap-1"
+                      title={log.entry_hash}
+                    >
                       <Hash className="h-3 w-3 text-accent-primary shrink-0" />
                       <span className="truncate">{log.entry_hash}</span>
                     </span>

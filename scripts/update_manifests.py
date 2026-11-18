@@ -16,9 +16,12 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+
 import yaml
 
-USER_AGENT = "AetherPanel-Manifest-Updater/7.0 (+https://github.com/aetherpanel/aetherpanel)"
+USER_AGENT = (
+    "AetherPanel-Manifest-Updater/7.0 (+https://github.com/aetherpanel/aetherpanel)"
+)
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 RECIPES_DIR = Path(__file__).resolve().parent.parent / "recipes"
 
@@ -47,7 +50,7 @@ def http_get_json(url: str) -> dict:
     if GITHUB_TOKEN and "api.github.com" in url:
         headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
     req = urllib.request.Request(url, headers=headers)
-    with urllib.request.urlopen(req, timeout=30, context=SSL_CTX) as resp:
+    with urllib.request.urlopen(req, timeout=30, context=SSL_CTX) as resp:  # nosec B310
         return json.loads(resp.read().decode("utf-8"))
 
 
@@ -56,7 +59,9 @@ def compute_remote_sha256(url: str) -> str:
     headers = {"User-Agent": USER_AGENT}
     req = urllib.request.Request(url, headers=headers)
     hasher = hashlib.sha256()
-    with urllib.request.urlopen(req, timeout=120, context=SSL_CTX) as resp:
+    with urllib.request.urlopen(
+        req, timeout=120, context=SSL_CTX
+    ) as resp:  # nosec B310
         validate_url(resp.geturl())
         while True:
             chunk = resp.read(1024 * 1024)
@@ -142,7 +147,9 @@ def process_recipe(yaml_path: Path) -> bool:
     recipe["source"]["sha256"] = sha256_digest
 
     atomic_write_yaml(yaml_path, recipe)
-    print(f"[DONE] {app_id} diperbarui ke {latest_version} (SHA256: {sha256_digest[:12]}...)")
+    print(
+        f"[DONE] {app_id} diperbarui ke {latest_version} (SHA256: {sha256_digest[:12]}...)"
+    )
     return True
 
 

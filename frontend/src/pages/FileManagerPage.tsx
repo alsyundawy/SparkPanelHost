@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import Editor from '@monaco-editor/react';
+import React, { useState } from "react";
+import Editor from "@monaco-editor/react";
 import {
   FolderOpen,
   FileCode,
@@ -7,19 +7,19 @@ import {
   CheckCircle2,
   File,
   ShieldCheck,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface FileNode {
   name: string;
-  type: 'file' | 'dir';
+  type: "file" | "dir";
   content?: string;
   size?: string;
 }
 
 export const FileManagerPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<FileNode>({
-    name: 'index.php',
-    type: 'file',
+    name: "index.php",
+    type: "file",
     content: `<?php
 /**
  * SparkPanelHost v0.1.0 Tenant Application
@@ -33,15 +33,15 @@ phpinfo();
 `,
   });
 
-  const [code, setCode] = useState(selectedFile.content || '');
+  const [code, setCode] = useState(selectedFile.content || "");
   const [saved, setSaved] = useState(false);
 
   const files: FileNode[] = [
-    { name: 'public_html', type: 'dir' },
-    { name: 'index.php', type: 'file', size: '240 B' },
-    { name: '.htaccess', type: 'file', size: '120 B' },
-    { name: 'config.php', type: 'file', size: '1.2 KB' },
-    { name: 'wp-content', type: 'dir' },
+    { name: "public_html", type: "dir" },
+    { name: "index.php", type: "file", size: "240 B" },
+    { name: ".htaccess", type: "file", size: "120 B" },
+    { name: "config.php", type: "file", size: "1.2 KB" },
+    { name: "wp-content", type: "dir" },
   ];
 
   const handleSave = () => {
@@ -58,7 +58,8 @@ phpinfo();
             File Manager
           </h1>
           <p className="text-xs text-text-secondary mt-0.5">
-            Kernel-enforced path traversal & symlink immunity (openat2 RESOLVE_BENEATH)
+            Kernel-enforced path traversal & symlink immunity (openat2
+            RESOLVE_BENEATH)
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -91,26 +92,30 @@ phpinfo();
                 <button
                   key={f.name}
                   onClick={() => {
-                    if (f.type === 'file') {
+                    if (f.type === "file") {
                       setSelectedFile(f);
                       setCode(f.content || `// File content of ${f.name}\n`);
                     }
                   }}
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs transition-colors ${
                     selectedFile.name === f.name
-                      ? 'bg-accent-primary text-white font-semibold'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-bg-elevated'
+                      ? "bg-accent-primary text-white font-semibold"
+                      : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated"
                   }`}
                 >
                   <span className="flex items-center gap-2 truncate">
-                    {f.type === 'dir' ? (
+                    {f.type === "dir" ? (
                       <FolderOpen className="h-3.5 w-3.5 text-accent-primary" />
                     ) : (
                       <FileCode className="h-3.5 w-3.5" />
                     )}
                     <span className="truncate">{f.name}</span>
                   </span>
-                  {f.size && <span className="text-[10px] opacity-75 font-mono">{f.size}</span>}
+                  {f.size && (
+                    <span className="text-[10px] opacity-75 font-mono">
+                      {f.size}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -129,7 +134,9 @@ phpinfo();
               <File className="h-3.5 w-3.5 text-accent-primary" />
               <span>{selectedFile.name}</span>
             </div>
-            <span className="text-[11px] text-text-secondary font-mono">PHP / UTF-8</span>
+            <span className="text-[11px] text-text-secondary font-mono">
+              PHP / UTF-8
+            </span>
           </div>
 
           <div className="flex-1 w-full">
@@ -138,14 +145,14 @@ phpinfo();
               defaultLanguage="php"
               theme="vs-dark"
               value={code}
-              onChange={(val) => setCode(val || '')}
+              onChange={(val) => setCode(val || "")}
               options={{
                 minimap: { enabled: false },
                 fontSize: 13,
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: "JetBrains Mono, monospace",
                 tabSize: 4,
-                wordWrap: 'on',
-                lineNumbers: 'on',
+                wordWrap: "on",
+                lineNumbers: "on",
                 scrollBeyondLastLine: false,
               }}
             />
