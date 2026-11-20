@@ -48,6 +48,12 @@ fi
 # Sanitize version for Debian package (remove leading 'v', ensure hyphen for revision if needed)
 DEB_VERSION="${VERSION_INPUT#v}"
 DEB_VERSION="${DEB_VERSION//_/-}"
+
+# Debian policy: Version must start with a digit (0-9)
+if [[ ! ${DEB_VERSION} =~ ^[0-9] ]]; then
+	DEB_VERSION="0.1.0+git${DEB_VERSION}"
+fi
+
 if [[ ! ${DEB_VERSION} =~ - ]]; then
 	DEB_VERSION="${DEB_VERSION}-1"
 fi

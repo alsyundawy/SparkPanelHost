@@ -62,7 +62,10 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             VER="${GITHUB_REF#refs/tags/}"
           else
-            VER="$(git describe --tags --always 2>/dev/null || echo "0.1.0")"
+            LATEST_TAG="$(git describe --tags --abbrev=0 2>/dev/null || echo "0.1.0")"
+            LATEST_TAG="${LATEST_TAG#v}"
+            COMMIT_SHA="$(git rev-parse --short HEAD 2>/dev/null || echo "local")"
+            VER="${LATEST_TAG}+git${COMMIT_SHA}"
           fi
           echo "version=${VER}" >> "$GITHUB_OUTPUT"
 
