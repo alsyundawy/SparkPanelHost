@@ -21,7 +21,7 @@ jobs:
       - name: Install gosec & govulncheck
         run: |
           go install github.com/securego/gosec/v2/cmd/gosec@v2.22.11
-          go install golang.org/x/vuln/cmd/govulncheck@latest
+          go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
       - name: Run govulncheck
         working-directory: backend
         run: govulncheck ./...
