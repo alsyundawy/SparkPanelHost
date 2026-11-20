@@ -1,6 +1,6 @@
 module github.com/alsyundawy/SparkPanelHost/backend
 
-go 1.26.0
+go 1.24.0
 
 require (
 	github.com/creack/pty v1.1.24
