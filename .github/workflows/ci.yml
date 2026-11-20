@@ -43,6 +43,8 @@ jobs:
   backend-tests:
     name: Go Backend Unit Tests & SAST
     runs-on: ubuntu-24.04
+    env:
+      GOTOOLCHAIN: auto
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -50,13 +52,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7
         with:
-          go-version: "1.24"
+          go-version: "1.26"
           cache-dependency-path: backend/go.sum
 
       - name: Install Security Scanners (gosec & govulncheck)
         run: |
-          go install github.com/securego/gosec/v2/cmd/gosec@v2.22.11
-          go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          go install golang.org/x/vuln/cmd/govulncheck@latest
 
       - name: Run Dependency Vulnerability Scan (govulncheck)
         working-directory: backend
