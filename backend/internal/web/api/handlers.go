@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -145,6 +146,11 @@ type ImpersonateRequest struct {
 
 func (s *Server) Impersonate(w http.ResponseWriter, r *http.Request) {
 	actor := GetUserFromContext(r.Context())
+	if actor == nil || (actor.Role != "superadmin" && actor.Role != "reseller") {
+		writeJSONError(w, http.StatusForbidden, "Tenants are not permitted to impersonate users")
+		return
+	}
+
 	var req ImpersonateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid request")
@@ -157,10 +163,19 @@ func (s *Server) Impersonate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if targetUser.ID == actor.ID {
+		writeJSONError(w, http.StatusBadRequest, "Cannot impersonate self")
+		return
+	}
+	if targetUser.Status == "suspended" {
+		writeJSONError(w, http.StatusForbidden, "Cannot impersonate suspended account")
+		return
+	}
+
 	// Reseller can only impersonate their own tenants
 	if actor.Role == "reseller" {
-		if targetUser.ResellerID == nil || *targetUser.ResellerID != actor.ID {
-			writeJSONError(w, http.StatusForbidden, "Cannot impersonate tenant not owned by you")
+		if targetUser.Role != "tenant" || targetUser.ResellerID == nil || *targetUser.ResellerID != actor.ID {
+			writeJSONError(w, http.StatusForbidden, "Cannot impersonate user not owned by you")
 			return
 		}
 	}
@@ -387,8 +402,28 @@ func (s *Server) DeleteDomain(w http.ResponseWriter, r *http.Request) {
 	actor := GetUserFromContext(r.Context())
 	domainID := chi.URLParam(r, "id")
 
-	// Call agent to delete
-	_ = s.Store.DeleteDomain(r.Context(), domainID)
+	dom, err := s.Store.GetDomainByID(r.Context(), domainID)
+	if err != nil {
+		writeJSONError(w, http.StatusNotFound, "Domain not found")
+		return
+	}
+
+	if actor.Role == "tenant" && dom.UserID != actor.ID {
+		writeJSONError(w, http.StatusForbidden, "Cannot delete domain not owned by you")
+		return
+	}
+	if actor.Role == "reseller" {
+		targetUser, err := s.Store.GetUserByID(r.Context(), dom.UserID)
+		if err != nil || targetUser.ResellerID == nil || *targetUser.ResellerID != actor.ID {
+			writeJSONError(w, http.StatusForbidden, "Cannot delete domain not owned by your tenants")
+			return
+		}
+	}
+
+	if err := s.Store.DeleteDomain(r.Context(), domainID); err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Failed to delete domain: "+err.Error())
+		return
+	}
 	_ = s.Store.AppendAuditLog(r.Context(), actor.ID, nil, "domain.delete", "domain:"+domainID, r.RemoteAddr)
 
 	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
@@ -425,6 +460,12 @@ func (s *Server) CreateDatabase(w http.ResponseWriter, r *http.Request) {
 	var req CreateDatabaseRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		writeJSONError(w, http.StatusBadRequest, "Invalid request")
+		return
+	}
+
+	dbIDRegex := regexp.MustCompile(`^[a-z0-9_]{1,24}$`)
+	if !dbIDRegex.MatchString(req.DBName) || !dbIDRegex.MatchString(req.DBUser) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid database name or user identifier: must match ^[a-z0-9_]{1,24}$")
 		return
 	}
 
@@ -467,6 +508,37 @@ func (s *Server) CreateDatabase(w http.ResponseWriter, r *http.Request) {
 		"success":  true,
 		"database": dbRecord,
 	})
+}
+
+func (s *Server) DeleteDatabase(w http.ResponseWriter, r *http.Request) {
+	actor := GetUserFromContext(r.Context())
+	dbID := chi.URLParam(r, "id")
+
+	dbRecord, err := s.Store.GetTenantDatabaseByID(r.Context(), dbID)
+	if err != nil {
+		writeJSONError(w, http.StatusNotFound, "Database not found")
+		return
+	}
+
+	if actor.Role == "tenant" && dbRecord.UserID != actor.ID {
+		writeJSONError(w, http.StatusForbidden, "Cannot delete database not owned by you")
+		return
+	}
+	if actor.Role == "reseller" {
+		targetUser, err := s.Store.GetUserByID(r.Context(), dbRecord.UserID)
+		if err != nil || targetUser.ResellerID == nil || *targetUser.ResellerID != actor.ID {
+			writeJSONError(w, http.StatusForbidden, "Cannot delete database not owned by your tenants")
+			return
+		}
+	}
+
+	if err := s.Store.DeleteTenantDatabase(r.Context(), dbID); err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Failed to delete database: "+err.Error())
+		return
+	}
+	_ = s.Store.AppendAuditLog(r.Context(), actor.ID, nil, "database.delete", "db:"+dbID, r.RemoteAddr)
+
+	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
 }
 
 // DNS Clustering Handlers (WHM DNS Only style)
@@ -737,6 +809,16 @@ func (s *Server) StreamTelemetryWS(w http.ResponseWriter, r *http.Request) {
 
 // Web Terminal WebSocket PTY Bridge
 func (s *Server) WebTerminalWS(w http.ResponseWriter, r *http.Request) {
+	actor := GetUserFromContext(r.Context())
+	if actor == nil {
+		writeJSONError(w, http.StatusUnauthorized, "Authentication required")
+		return
+	}
+	if actor.Role == "tenant" {
+		writeJSONError(w, http.StatusForbidden, "Web terminal shell access is disabled for this account")
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return

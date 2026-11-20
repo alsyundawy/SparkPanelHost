@@ -63,7 +63,7 @@ func (s *Server) Routes(staticDir string) http.Handler {
 			// Auth Session
 			r.Post("/auth/logout", s.Logout)
 			r.Get("/auth/me", s.Me)
-			r.Post("/auth/impersonate", s.Impersonate)
+			r.With(RequireRole("superadmin", "reseller")).Post("/auth/impersonate", s.Impersonate)
 
 			// 2FA TOTP & Passkeys
 			r.Post("/auth/2fa/totp/setup", s.SetupTOTP)
@@ -96,6 +96,7 @@ func (s *Server) Routes(staticDir string) http.Handler {
 			// Databases
 			r.Get("/databases", s.ListDatabases)
 			r.Post("/databases", s.CreateDatabase)
+			r.Delete("/databases/{id}", s.DeleteDatabase)
 
 			// DNS Clustering
 			r.Get("/dns/clusters", s.ListDNSClusters)

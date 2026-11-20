@@ -195,6 +195,22 @@ func (s *Store) CreateDomain(ctx context.Context, d *Domain) error {
 	return err
 }
 
+func (s *Store) GetDomainByID(ctx context.Context, id string) (*Domain, error) {
+	var d Domain
+	err := s.db.QueryRowContext(ctx, `
+		SELECT id, user_id, domain_name, document_root, php_version, ssl_enabled, ssl_provider, ssl_expires_at, force_https, waf_mode, waf_profile, nginx_template, created_at
+		FROM domains WHERE id = ?
+	`, id).Scan(
+		&d.ID, &d.UserID, &d.DomainName, &d.DocumentRoot, &d.PHPVersion, &d.SSLEnabled,
+		&d.SSLProvider, &d.SSLExpiresAt, &d.ForceHTTPS, &d.WAFMode, &d.WAFProfile,
+		&d.NginxTemplate, &d.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &d, nil
+}
+
 func (s *Store) DeleteDomain(ctx context.Context, id string) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM domains WHERE id = ?`, id)
 	return err
@@ -234,6 +250,18 @@ func (s *Store) CreateTenantDatabase(ctx context.Context, db *TenantDatabase) er
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`, db.ID, db.UserID, db.Engine, db.DBName, db.DBUser, db.Charset, db.SizeMB)
 	return err
+}
+
+func (s *Store) GetTenantDatabaseByID(ctx context.Context, id string) (*TenantDatabase, error) {
+	var db TenantDatabase
+	err := s.db.QueryRowContext(ctx, `
+		SELECT id, user_id, engine, db_name, db_user, charset, size_mb, created_at
+		FROM tenant_databases WHERE id = ?
+	`, id).Scan(&db.ID, &db.UserID, &db.Engine, &db.DBName, &db.DBUser, &db.Charset, &db.SizeMB, &db.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	return &db, nil
 }
 
 func (s *Store) DeleteTenantDatabase(ctx context.Context, id string) error {
