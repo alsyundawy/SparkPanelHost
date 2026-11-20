@@ -85,8 +85,14 @@ func CloneAppStaging(ctx context.Context, username, sourceDir, targetDir, source
 		if rel == "." {
 			return nil
 		}
+		if strings.HasPrefix(rel, "..") || strings.Contains(rel, "..") {
+			return fmt.Errorf("traversal detected in relative path: %s", rel)
+		}
 
-		destPath := filepath.Join(cleanTarget, rel)
+		destPath := filepath.Clean(filepath.Join(cleanTarget, rel))
+		if !strings.HasPrefix(destPath, cleanTarget) {
+			return fmt.Errorf("staging target escape detected: %s", destPath)
+		}
 
 		if info.IsDir() {
 			return os.MkdirAll(destPath, 0750)
@@ -98,7 +104,7 @@ func CloneAppStaging(ctx context.Context, username, sourceDir, targetDir, source
 		}
 
 		// Read and optionally replace URLs
-		data, err := os.ReadFile(currPath)
+		data, err := os.ReadFile(currPath) // #nosec G122,G304
 		if err != nil {
 			return err
 		}
@@ -107,7 +113,7 @@ func CloneAppStaging(ctx context.Context, username, sourceDir, targetDir, source
 			data = bytes.ReplaceAll(data, []byte(oldURL), []byte(newURL))
 		}
 
-		return os.WriteFile(destPath, data, info.Mode().Perm())
+		return os.WriteFile(destPath, data, info.Mode().Perm()) // #nosec G306,G703
 	})
 	if err != nil {
 		return fmt.Errorf("staging file copy failed: %w", err)

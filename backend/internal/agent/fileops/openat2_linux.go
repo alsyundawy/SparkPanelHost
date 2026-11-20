@@ -182,12 +182,12 @@ func ExtractArchiveAsUser(archivePath, destDir string, uid, gid int, stripCompon
 			}
 			outFile, err := openFileBeneath(baseDirFD, relPath, 0640)
 			if err != nil {
-				rc.Close()
+				_ = rc.Close()
 				return err
 			}
 			n, copyErr := io.Copy(outFile, io.LimitReader(rc, maxSingleFileBytes))
 			closeErr := outFile.Close()
-			rc.Close()
+			_ = rc.Close()
 			if copyErr != nil {
 				return copyErr
 			}

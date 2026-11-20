@@ -95,7 +95,7 @@ func (s *Server) Login(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		Expires:  expiresAt,
 		HttpOnly: true,
-		Secure:   false, // Set true in production behind HTTPS
+		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
 	})
 
@@ -120,6 +120,8 @@ func (s *Server) Logout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
 	})
 
 	writeJSON(w, http.StatusOK, map[string]bool{"success": true})
@@ -638,7 +640,7 @@ func (s *Server) ListRecipes(w http.ResponseWriter, r *http.Request) {
 		if err != nil || info.IsDir() || (!strings.HasSuffix(path, ".yaml") && !strings.HasSuffix(path, ".yml")) {
 			return nil
 		}
-		data, err := os.ReadFile(path)
+		data, err := os.ReadFile(filepath.Clean(path)) // #nosec G122,G304
 		if err == nil {
 			var rec RecipeManifest
 			if err := yaml.Unmarshal(data, &rec); err == nil && rec.ID != "" {

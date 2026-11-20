@@ -74,8 +74,10 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({
       username: newUser.username,
       email: newUser.email,
       role: newUser.role as any,
-      linux_uid: 2000 + Math.floor(Math.random() * 5000),
-      linux_gid: 2000 + Math.floor(Math.random() * 5000),
+      linux_uid:
+        2000 + (window.crypto.getRandomValues(new Uint32Array(1))[0] % 5000),
+      linux_gid:
+        2000 + (window.crypto.getRandomValues(new Uint32Array(1))[0] % 5000),
       locale: "id",
       theme: "dark",
       status: "active",

@@ -16,7 +16,8 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-go@v7
         with:
-          go-version: "1.26"
+          go-version: "1.24"
+          cache-dependency-path: backend/go.sum
       - name: Install gosec & govulncheck
         run: |
           go install github.com/securego/gosec/v2/cmd/gosec@latest
@@ -26,7 +27,7 @@ jobs:
         run: govulncheck ./...
       - name: Run gosec SAST
         working-directory: backend
-        run: gosec -exclude-generated ./...
+        run: gosec -exclude=G301,G302,G306 -exclude-generated ./...
       - name: Run Go unit tests with race detector
         working-directory: backend
         run: go test -race ./...

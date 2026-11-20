@@ -161,10 +161,18 @@ func fileServer(r chi.Router, path string, root http.FileSystem) {
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
 		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
 
+		baseDir := filepath.Clean(string(root.(http.Dir)))
+		cleanURLPath := filepath.Clean("/" + strings.TrimPrefix(r.URL.Path, "/"))
+		fPath := filepath.Clean(filepath.Join(baseDir, cleanURLPath))
+		rel, err := filepath.Rel(baseDir, fPath)
+		if err != nil || strings.HasPrefix(rel, "..") || rel == ".." {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
 		// Check if file exists, fallback to index.html for SPA
-		fPath := filepath.Join(string(root.(http.Dir)), r.URL.Path)
-		if _, err := os.Stat(fPath); os.IsNotExist(err) {
-			http.ServeFile(w, r, filepath.Join(string(root.(http.Dir)), "index.html"))
+		if _, err := os.Stat(fPath); os.IsNotExist(err) { // #nosec G703
+			http.ServeFile(w, r, filepath.Join(baseDir, "index.html"))
 			return
 		}
 

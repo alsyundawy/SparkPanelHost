@@ -14,7 +14,7 @@ import sys
 import tempfile
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -33,6 +33,7 @@ ALLOWED_HOSTS = {
     "github.com",
     "codeload.github.com",
     "objects.githubusercontent.com",
+    "release-assets.githubusercontent.com",
 }
 
 SSL_CTX = ssl.create_default_context()
@@ -47,7 +48,8 @@ def validate_url(url: str) -> None:
 def http_get_json(url: str) -> dict:
     validate_url(url)
     headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
-    if GITHUB_TOKEN and "api.github.com" in url:
+    parsed_url = urllib.parse.urlparse(url)
+    if GITHUB_TOKEN and parsed_url.hostname == "api.github.com":
         headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req, timeout=30, context=SSL_CTX) as resp:  # nosec B310
@@ -130,7 +132,7 @@ def process_recipe(yaml_path: Path) -> bool:
 
     try:
         latest_version, download_url = resolve_upstream(recipe["upstream"])
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         print(f"[WARN] Gagal memeriksa upstream untuk {app_id}: {exc}", file=sys.stderr)
         return False
 
@@ -142,7 +144,7 @@ def process_recipe(yaml_path: Path) -> bool:
     sha256_digest = compute_remote_sha256(download_url)
 
     recipe["version"] = latest_version
-    recipe["release_date"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    recipe["release_date"] = datetime.now(UTC).strftime("%Y-%m-%d")
     recipe["source"]["url"] = download_url
     recipe["source"]["sha256"] = sha256_digest
 

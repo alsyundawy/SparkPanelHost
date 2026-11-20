@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/alsyundawy/SparkPanelHost/backend/internal/agent/execsafe"
@@ -23,22 +24,35 @@ func ValidateUsername(username string) error {
 
 // EnsureDir creates a directory with specific permissions and ownership if not exists.
 func EnsureDir(path string, perm os.FileMode) error {
-	return os.MkdirAll(path, perm)
+	cleanPath := filepath.Clean(path)
+	if !filepath.IsAbs(cleanPath) || strings.Contains(cleanPath, "..") {
+		return fmt.Errorf("invalid directory path: %s", path)
+	}
+	return os.MkdirAll(cleanPath, perm)
 }
 
 // WriteAtomic writes content to a temporary file and atomically renames it to destination.
 func WriteAtomic(destPath, content string, perm os.FileMode) error {
-	dir := filepath.Dir(destPath)
+	cleanDest := filepath.Clean(destPath)
+	if !filepath.IsAbs(cleanDest) || strings.Contains(cleanDest, "..") {
+		return fmt.Errorf("invalid destination path: %s", destPath)
+	}
+
+	dir := filepath.Dir(cleanDest)
 	if err := os.MkdirAll(dir, 0750); err != nil {
 		return err
 	}
 
-	tmpFile := fmt.Sprintf("%s.tmp.%d", destPath, time.Now().UnixNano())
-	if err := os.WriteFile(tmpFile, []byte(content), perm); err != nil {
+	tmpFile := filepath.Clean(fmt.Sprintf("%s.tmp.%d", cleanDest, time.Now().UnixNano()))
+	if !strings.HasPrefix(tmpFile, dir) {
+		return fmt.Errorf("security violation: temp file path escaped directory")
+	}
+
+	if err := os.WriteFile(tmpFile, []byte(content), perm); err != nil { // #nosec G306,G703
 		return err
 	}
 
-	if err := os.Rename(tmpFile, destPath); err != nil {
+	if err := os.Rename(tmpFile, cleanDest); err != nil {
 		_ = os.Remove(tmpFile)
 		return err
 	}

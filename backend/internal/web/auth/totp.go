@@ -5,7 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/hmac"
 	"crypto/rand"
-	"crypto/sha1"
+	"crypto/sha1" // #nosec G505 - RFC 6238 mandates HMAC-SHA1 algorithm for standard TOTP
 	"crypto/subtle"
 	"encoding/base32"
 	"encoding/binary"

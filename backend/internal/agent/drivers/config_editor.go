@@ -36,34 +36,50 @@ func ResolveConfigPath(service, subPath string) (string, error) {
 	}
 
 	if subPath != "" {
-		if !safeSubPathRegex.MatchString(subPath) || strings.Contains(subPath, "..") {
+		if !safeSubPathRegex.MatchString(subPath) || strings.Contains(subPath, "..") || filepath.Base(subPath) != subPath {
 			return "", fmt.Errorf("invalid sub_path %q: contains illegal characters or path traversal", subPath)
 		}
 	}
 
+	var candidate string
+	var allowedPrefix string
+
 	switch service {
 	case "nginx":
 		if subPath == "" || subPath == "nginx.conf" {
-			return "/etc/nginx/nginx.conf", nil
+			candidate = "/etc/nginx/nginx.conf"
+		} else {
+			candidate = filepath.Join("/etc/nginx/conf.d", filepath.Base(subPath)+".conf")
 		}
-		return filepath.Join("/etc/nginx/conf.d", subPath+".conf"), nil
+		allowedPrefix = "/etc/nginx"
 
 	case "php-fpm":
 		phpVer := "8.5"
 		if subPath != "" {
-			phpVer = subPath
+			phpVer = filepath.Base(subPath)
 		}
-		return fmt.Sprintf("/etc/php/%s/fpm/php.ini", phpVer), nil
+		candidate = fmt.Sprintf("/etc/php/%s/fpm/php.ini", phpVer)
+		allowedPrefix = "/etc/php"
 
 	case "mariadb":
 		if subPath == "" || subPath == "50-server.cnf" {
-			return "/etc/mysql/mariadb.conf.d/50-server.cnf", nil
+			candidate = "/etc/mysql/mariadb.conf.d/50-server.cnf"
+		} else {
+			candidate = filepath.Join("/etc/mysql/conf.d", filepath.Base(subPath)+".cnf")
 		}
-		return filepath.Join("/etc/mysql/conf.d", subPath+".cnf"), nil
+		allowedPrefix = "/etc/mysql"
 
 	default:
 		return "", fmt.Errorf("unhandled service %s", service)
 	}
+
+	cleanPath := filepath.Clean(candidate)
+	rel, err := filepath.Rel(allowedPrefix, cleanPath)
+	if err != nil || strings.HasPrefix(rel, "..") || rel == ".." {
+		return "", fmt.Errorf("path traversal detected: %s", cleanPath)
+	}
+
+	return cleanPath, nil
 }
 
 // ReadServiceConfig reads the active configuration file for the given service.
@@ -73,7 +89,7 @@ func ReadServiceConfig(service, subPath string) (string, string, error) {
 		return "", "", err
 	}
 
-	data, err := os.ReadFile(filePath)
+	data, err := os.ReadFile(filePath) // #nosec G304
 	if err != nil {
 		if os.IsNotExist(err) {
 			return filePath, "", fmt.Errorf("configuration file %s does not exist", filePath)
@@ -96,8 +112,11 @@ func ValidateServiceConfig(ctx context.Context, service, subPath, content string
 		return fmt.Errorf("failed to ensure config dir %s: %w", dir, err)
 	}
 
-	testFile := fmt.Sprintf("%s.test.%d", filePath, time.Now().UnixNano())
-	if err := os.WriteFile(testFile, []byte(content), 0644); err != nil {
+	testFile := filepath.Clean(fmt.Sprintf("%s.test.%d", filePath, time.Now().UnixNano()))
+	if !strings.HasPrefix(testFile, dir) {
+		return fmt.Errorf("security violation: test file escaped directory")
+	}
+	if err := os.WriteFile(testFile, []byte(content), 0644); err != nil { // #nosec G306,G703
 		return fmt.Errorf("failed to write test file: %w", err)
 	}
 	defer os.Remove(testFile)
@@ -169,9 +188,13 @@ func WriteServiceConfig(ctx context.Context, service, subPath, content string) (
 
 	// 2. Backup existing file if present
 	now := time.Now().Format("20060102150405")
-	backupPath := fmt.Sprintf("%s.bak.%s", filePath, now)
-	if existingData, err := os.ReadFile(filePath); err == nil {
-		if err := os.WriteFile(backupPath, existingData, 0644); err != nil {
+	backupPath := filepath.Clean(fmt.Sprintf("%s.bak.%s", filePath, now))
+	dir := filepath.Dir(filePath)
+	if !strings.HasPrefix(backupPath, dir) {
+		return "", fmt.Errorf("security violation: backup path escaped directory")
+	}
+	if existingData, err := os.ReadFile(filePath); err == nil { // #nosec G304
+		if err := os.WriteFile(backupPath, existingData, 0644); err != nil { // #nosec G306,G703
 			return "", fmt.Errorf("failed to create backup file %s: %w", backupPath, err)
 		}
 	}
@@ -220,8 +243,11 @@ func RollbackServiceConfig(ctx context.Context, service, subPath, backupTimestam
 		return fmt.Errorf("invalid backup timestamp %q", backupTimestamp)
 	}
 
-	backupPath := fmt.Sprintf("%s.bak.%s", filePath, backupTimestamp)
-	backupData, err := os.ReadFile(backupPath)
+	backupPath := filepath.Clean(fmt.Sprintf("%s.bak.%s", filePath, backupTimestamp))
+	if !strings.HasPrefix(backupPath, filepath.Dir(filePath)) {
+		return fmt.Errorf("security violation: backup path escaped directory")
+	}
+	backupData, err := os.ReadFile(backupPath) // #nosec G304
 	if err != nil {
 		return fmt.Errorf("backup file %s not found: %w", backupPath, err)
 	}

@@ -67,9 +67,10 @@ func GetSystemTelemetry(ctx context.Context, username string) (*SystemTelemetry,
 		}
 	}
 
-	if err := syscall.Statfs(checkPath, &stat); err == nil {
-		totalBytes := stat.Blocks * uint64(stat.Bsize)
-		freeBytes := stat.Bfree * uint64(stat.Bsize)
+	if err := syscall.Statfs(checkPath, &stat); err == nil && stat.Bsize > 0 {
+		bsize := uint64(stat.Bsize)
+		totalBytes := stat.Blocks * bsize
+		freeBytes := stat.Bfree * bsize
 		telemetry.DiskTotalMB = totalBytes / (1024 * 1024)
 		telemetry.DiskUsedMB = (totalBytes - freeBytes) / (1024 * 1024)
 	} else {

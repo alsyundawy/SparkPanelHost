@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"math"
 	"net"
 	"os"
 	"os/signal"
@@ -59,7 +60,7 @@ func main() {
 	if err := os.Chmod(*socketPath, 0660); err != nil {
 		log.Printf("Warning: failed to chmod socket: %v", err)
 	}
-	if allowedUID > 0 {
+	if allowedUID > 0 && uint64(allowedUID) <= uint64(math.MaxInt) {
 		_ = os.Chown(*socketPath, 0, int(allowedUID))
 	}
 

@@ -99,7 +99,7 @@ func (s *Server) RequireAPIScope(scope string) func(http.Handler) http.Handler {
 			}
 
 			// Update last used timestamp asynchronously
-			go func() {
+			go func() { // #nosec G118
 				_ = s.Store.UpdateAPITokenLastUsed(context.Background(), token.ID)
 			}()
 

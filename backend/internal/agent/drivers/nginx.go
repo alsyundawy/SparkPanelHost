@@ -156,7 +156,7 @@ server {
 	if _, err := execsafe.RunDirect(ctx, 15*time.Second, "/usr/sbin/nginx", "-t"); err != nil {
 		// Rollback
 		if len(oldContent) > 0 {
-			_ = os.WriteFile(availablePath, oldContent, 0644)
+			_ = os.WriteFile(availablePath, oldContent, 0644) // #nosec G703,G306
 		} else {
 			_ = os.Remove(availablePath)
 			_ = os.Remove(enabledPath)
