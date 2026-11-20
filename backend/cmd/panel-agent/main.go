@@ -41,9 +41,11 @@ func main() {
 
 	// Resolve allowed UID
 	var allowedUID uint32 = 0
+	var allowedUIDInt = 0
 	if u, err := user.Lookup(*allowedUser); err == nil {
-		if uidInt, parseErr := strconv.ParseUint(u.Uid, 10, 32); parseErr == nil {
+		if uidInt, parseErr := strconv.Atoi(u.Uid); parseErr == nil && uidInt >= 0 && uidInt <= math.MaxInt32 {
 			allowedUID = uint32(uidInt)
+			allowedUIDInt = uidInt
 			log.Printf("[panel-agent] Enforcing SO_PEERCRED access for UID: %d (%s)", allowedUID, *allowedUser)
 		}
 	} else {
@@ -60,8 +62,8 @@ func main() {
 	if err := os.Chmod(*socketPath, 0660); err != nil {
 		log.Printf("Warning: failed to chmod socket: %v", err)
 	}
-	if allowedUID > 0 && uint64(allowedUID) <= uint64(math.MaxInt) {
-		_ = os.Chown(*socketPath, 0, int(allowedUID))
+	if allowedUIDInt > 0 {
+		_ = os.Chown(*socketPath, 0, allowedUIDInt)
 	}
 
 	// Create gRPC server with SO_PEERCRED security handshake

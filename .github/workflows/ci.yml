@@ -55,7 +55,7 @@ jobs:
 
       - name: Install Security Scanners (gosec & govulncheck)
         run: |
-          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          go install github.com/securego/gosec/v2/cmd/gosec@v2.22.11
           go install golang.org/x/vuln/cmd/govulncheck@latest
 
       - name: Run Dependency Vulnerability Scan (govulncheck)

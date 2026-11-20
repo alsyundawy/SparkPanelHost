@@ -7,6 +7,18 @@ interface AccountsPageProps {
   onImpersonate: (user: User) => void;
 }
 
+function getUnbiasedRandomInt(min: number, max: number): number {
+  const range = max - min;
+  const maxSafe = Math.floor(0x100000000 / range) * range;
+  const buf = new Uint32Array(1);
+  let val: number;
+  do {
+    window.crypto.getRandomValues(buf);
+    val = buf[0];
+  } while (val >= maxSafe);
+  return min + (val % range);
+}
+
 export const AccountsPage: React.FC<AccountsPageProps> = ({
   onImpersonate,
 }) => {
@@ -74,10 +86,8 @@ export const AccountsPage: React.FC<AccountsPageProps> = ({
       username: newUser.username,
       email: newUser.email,
       role: newUser.role as any,
-      linux_uid:
-        2000 + (window.crypto.getRandomValues(new Uint32Array(1))[0] % 5000),
-      linux_gid:
-        2000 + (window.crypto.getRandomValues(new Uint32Array(1))[0] % 5000),
+      linux_uid: getUnbiasedRandomInt(2000, 7000),
+      linux_gid: getUnbiasedRandomInt(2000, 7000),
       locale: "id",
       theme: "dark",
       status: "active",

@@ -14,8 +14,15 @@ import (
 )
 
 var (
-	safeSubPathRegex = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
-	allowedServices  = map[string]bool{
+	safeSubPathRegex   = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
+	allowedPHPVersions = map[string]string{
+		"8.2": "8.2",
+		"8.3": "8.3",
+		"8.4": "8.4",
+		"8.5": "8.5",
+		"8.6": "8.6",
+	}
+	allowedServices = map[string]bool{
 		"nginx":   true,
 		"php-fpm": true,
 		"mariadb": true,
@@ -56,7 +63,11 @@ func ResolveConfigPath(service, subPath string) (string, error) {
 	case "php-fpm":
 		phpVer := "8.5"
 		if subPath != "" {
-			phpVer = filepath.Base(subPath)
+			if v, ok := allowedPHPVersions[subPath]; ok {
+				phpVer = v
+			} else {
+				return "", fmt.Errorf("unsupported php version %q", subPath)
+			}
 		}
 		candidate = fmt.Sprintf("/etc/php/%s/fpm/php.ini", phpVer)
 		allowedPrefix = "/etc/php"
@@ -88,6 +99,9 @@ func ReadServiceConfig(service, subPath string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
+	if !strings.HasPrefix(filePath, "/etc/") || strings.Contains(filePath, "..") {
+		return "", "", fmt.Errorf("security violation: path outside /etc")
+	}
 
 	data, err := os.ReadFile(filePath) // #nosec G304
 	if err != nil {
@@ -105,6 +119,9 @@ func ValidateServiceConfig(ctx context.Context, service, subPath, content string
 	filePath, err := ResolveConfigPath(service, subPath)
 	if err != nil {
 		return err
+	}
+	if !strings.HasPrefix(filePath, "/etc/") || strings.Contains(filePath, "..") {
+		return fmt.Errorf("security violation: path outside /etc")
 	}
 
 	dir := filepath.Dir(filePath)
@@ -140,8 +157,8 @@ func ValidateServiceConfig(ctx context.Context, service, subPath, content string
 
 	case "php-fpm":
 		phpVer := "8.5"
-		if subPath != "" {
-			phpVer = subPath
+		if v, ok := allowedPHPVersions[subPath]; ok {
+			phpVer = v
 		}
 		phpBin := fmt.Sprintf("/usr/bin/php%s", phpVer)
 		if _, err := os.Stat(phpBin); err != nil {
@@ -180,6 +197,9 @@ func WriteServiceConfig(ctx context.Context, service, subPath, content string) (
 	if err != nil {
 		return "", err
 	}
+	if !strings.HasPrefix(filePath, "/etc/") || strings.Contains(filePath, "..") {
+		return "", fmt.Errorf("security violation: path outside /etc")
+	}
 
 	// 1. Mandatory Syntax Validation before touching the file
 	if err := ValidateServiceConfig(ctx, service, subPath, content); err != nil {
@@ -212,8 +232,8 @@ func WriteServiceConfig(ctx context.Context, service, subPath, content string) (
 			_, reloadErr = execsafe.RunDirect(ctx, 15*time.Second, "/usr/bin/systemctl", "reload", "nginx")
 		case "php-fpm":
 			phpVer := "8.5"
-			if subPath != "" {
-				phpVer = subPath
+			if v, ok := allowedPHPVersions[subPath]; ok {
+				phpVer = v
 			}
 			_, reloadErr = execsafe.RunDirect(ctx, 15*time.Second, "/usr/bin/systemctl", "reload", fmt.Sprintf("php%s-fpm", phpVer))
 		case "mariadb":
@@ -238,13 +258,16 @@ func RollbackServiceConfig(ctx context.Context, service, subPath, backupTimestam
 	if err != nil {
 		return err
 	}
+	if !strings.HasPrefix(filePath, "/etc/") || strings.Contains(filePath, "..") {
+		return fmt.Errorf("security violation: path outside /etc")
+	}
 
-	if !safeSubPathRegex.MatchString(backupTimestamp) {
+	if !safeSubPathRegex.MatchString(backupTimestamp) || strings.ContainsAny(backupTimestamp, "/\\:\x00") {
 		return fmt.Errorf("invalid backup timestamp %q", backupTimestamp)
 	}
 
 	backupPath := filepath.Clean(fmt.Sprintf("%s.bak.%s", filePath, backupTimestamp))
-	if !strings.HasPrefix(backupPath, filepath.Dir(filePath)) {
+	if !strings.HasPrefix(backupPath, "/etc/") || !strings.HasPrefix(backupPath, filepath.Dir(filePath)) {
 		return fmt.Errorf("security violation: backup path escaped directory")
 	}
 	backupData, err := os.ReadFile(backupPath) // #nosec G304
@@ -269,8 +292,8 @@ func RollbackServiceConfig(ctx context.Context, service, subPath, backupTimestam
 			_, _ = execsafe.RunDirect(ctx, 15*time.Second, "/usr/bin/systemctl", "reload", "nginx")
 		case "php-fpm":
 			phpVer := "8.5"
-			if subPath != "" {
-				phpVer = subPath
+			if v, ok := allowedPHPVersions[subPath]; ok {
+				phpVer = v
 			}
 			_, _ = execsafe.RunDirect(ctx, 15*time.Second, "/usr/bin/systemctl", "reload", fmt.Sprintf("php%s-fpm", phpVer))
 		case "mariadb":
@@ -287,8 +310,14 @@ func ListServiceConfigBackups(service, subPath string) ([]ConfigBackupInfo, erro
 	if err != nil {
 		return nil, err
 	}
+	if !strings.HasPrefix(filePath, "/etc/") || strings.Contains(filePath, "..") {
+		return nil, fmt.Errorf("security violation: path outside /etc")
+	}
 
 	dir := filepath.Dir(filePath)
+	if !strings.HasPrefix(dir, "/etc/") || strings.Contains(dir, "..") {
+		return nil, fmt.Errorf("security violation: directory outside /etc")
+	}
 	base := filepath.Base(filePath)
 	prefix := base + ".bak."
 
