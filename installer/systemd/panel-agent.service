@@ -16,7 +16,7 @@ RestartSec=2s
 
 # Hardening Systemd (Prefix '-' mengabaikan direktori opsional jika belum terpasang)
 ProtectSystem=strict
-ReadWritePaths=/etc/nginx /etc/coraza /etc/php /etc/postfix /etc/dovecot /etc/rspamd /etc/nftables.d -/etc/csf /var/vmail /var/panel /var/log/aetherpanel /home
+ReadWritePaths=/etc/nginx /etc/coraza /etc/php /etc/postfix /etc/dovecot /etc/rspamd /etc/nftables.d -/etc/csf /var/vmail /var/panel /var/log/aetherpanel /var/log/sparkpanel /home /etc/sparkpanel /etc/aetherpanel
 ProtectKernelTunables=yes
 ProtectKernelModules=yes
 ProtectKernelLogs=yes

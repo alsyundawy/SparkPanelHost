@@ -7,7 +7,7 @@ Requires=panel-agent.service
 Type=simple
 User=panel-web
 Group=panel-web
-ExecStart=/usr/local/bin/panel-web --config /etc/aetherpanel/config.yaml
+ExecStart=/usr/local/bin/panel-web --config /etc/sparkpanel/config.yaml --listen :2087 --agent-socket /run/panel/agent.sock --db /var/panel/data/sparkpanel.db --migrations /usr/share/sparkpanel/migrations/001_init.sql --static /var/panel/web --recipes /var/panel/recipes
 WorkingDirectory=/var/panel
 UMask=0077
 Restart=always
@@ -30,7 +30,7 @@ RestrictRealtime=yes
 RestrictNamespaces=yes
 SystemCallArchitectures=native
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-ReadWritePaths=/var/panel/data /var/panel/tmp /var/log/aetherpanel
+ReadWritePaths=/var/panel/data /var/panel/tmp /var/log/aetherpanel /var/log/sparkpanel
 CapabilityBoundingSet=
 AmbientCapabilities=
 

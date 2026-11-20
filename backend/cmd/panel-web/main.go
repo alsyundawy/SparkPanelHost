@@ -30,9 +30,13 @@ func main() {
 	migrationPath := flag.String("migrations", "migrations/001_init.sql", "SQL migrations file path")
 	staticDir := flag.String("static", "dist/web", "Frontend static SPA distribution directory")
 	recipeDir := flag.String("recipes", "recipes", "App installer recipes directory")
+	configPath := flag.String("config", "", "Path to YAML configuration file (optional)")
 	flag.Parse()
 
 	log.Printf("[panel-web] Starting SparkPanelHost Web Control Plane %s (Port: %s)", Version, *listenAddr)
+	if *configPath != "" {
+		log.Printf("[panel-web] Configuration profile: %s", *configPath)
+	}
 
 	// Fallback database path if /var/panel/data is not writable
 	actualDBPath := *dbPath
@@ -43,7 +47,11 @@ func main() {
 	// Fallback migration path
 	actualMigrationPath := *migrationPath
 	if _, err := os.Stat(actualMigrationPath); os.IsNotExist(err) {
-		if _, err := os.Stat("../migrations/001_init.sql"); err == nil {
+		if _, err := os.Stat("/usr/share/sparkpanel/migrations/001_init.sql"); err == nil {
+			actualMigrationPath = "/usr/share/sparkpanel/migrations/001_init.sql"
+		} else if _, err := os.Stat("/usr/share/aetherpanel/migrations/001_init.sql"); err == nil {
+			actualMigrationPath = "/usr/share/aetherpanel/migrations/001_init.sql"
+		} else if _, err := os.Stat("../migrations/001_init.sql"); err == nil {
 			actualMigrationPath = "../migrations/001_init.sql"
 		} else if _, err := os.Stat("backend/migrations/001_init.sql"); err == nil {
 			actualMigrationPath = "backend/migrations/001_init.sql"
@@ -74,7 +82,9 @@ func main() {
 	// Recipe directory fallback
 	actualRecipeDir := *recipeDir
 	if _, err := os.Stat(actualRecipeDir); os.IsNotExist(err) {
-		if _, err := os.Stat("../recipes"); err == nil {
+		if _, err := os.Stat("/var/panel/recipes"); err == nil {
+			actualRecipeDir = "/var/panel/recipes"
+		} else if _, err := os.Stat("../recipes"); err == nil {
 			actualRecipeDir = "../recipes"
 		}
 	}
@@ -82,7 +92,11 @@ func main() {
 	// Static directory fallback
 	actualStaticDir := *staticDir
 	if _, err := os.Stat(actualStaticDir); os.IsNotExist(err) {
-		if _, err := os.Stat("../frontend/dist"); err == nil {
+		if _, err := os.Stat("/var/panel/web"); err == nil {
+			actualStaticDir = "/var/panel/web"
+		} else if _, err := os.Stat("/usr/share/sparkpanel/web"); err == nil {
+			actualStaticDir = "/usr/share/sparkpanel/web"
+		} else if _, err := os.Stat("../frontend/dist"); err == nil {
 			actualStaticDir = "../frontend/dist"
 		} else {
 			actualStaticDir = ""

@@ -26,9 +26,13 @@ var (
 func main() {
 	socketPath := flag.String("socket", "/run/panel/agent.sock", "Path to Unix Domain Socket")
 	allowedUser := flag.String("allowed-user", "panel-web", "Username permitted to connect over Unix domain socket")
+	configPath := flag.String("config", "", "Path to YAML configuration file (optional)")
 	flag.Parse()
 
 	log.Printf("[panel-agent] Starting SparkPanelHost System Agent %s (Commit: %s, Build: %s)", Version, Commit, BuildTime)
+	if *configPath != "" {
+		log.Printf("[panel-agent] Configuration profile: %s", *configPath)
+	}
 
 	// Ensure parent directory exists with restrictive permissions
 	socketDir := filepath.Dir(*socketPath)

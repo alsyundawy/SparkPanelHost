@@ -87,13 +87,14 @@ Dokumen ini adalah hasil analisis mendalam terhadap **seluruh berkas spesifikasi
 
 ### Pillar 5: Production Installer DEB822 & Recipes
 
-- [x] **5.1 Script Installer Otomatis (`install.sh`)**: Siap produksi untuk Ubuntu 26.04/24.04 & Debian 13/12 menggunakan DEB822 (`.sources`). ([install.sh](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/installer/install.sh))
-- [x] **5.2 Pengerasan Kernel via sysctl**: `/etc/sysctl.d/99-aetherpanel.conf` (TCP BBR, `fs.protected_symlinks=1`, `yama.ptrace_scope=2`).
+- [x] **5.1 Script Installer Otomatis (`install.sh`)**: Siap produksi untuk Ubuntu 26.04/24.04 & Debian 13/12 menggunakan DEB822 (`.sources`), mendukung instalasi paket deb langsung (`--package` / `--deb`), auto-detection paket `.deb`, serta opsi `--skip-repos` & `--skip-services`. ([install.sh](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/installer/install.sh))
+- [x] **5.2 Pengerasan Kernel via sysctl**: `/etc/sysctl.d/99-sparkpanel.conf` (TCP BBR, `fs.protected_symlinks=1`, `yama.ptrace_scope=2`).
 - [x] **5.3 Hardening Database MariaDB 12.3**: `local_infile=OFF`, `symbolic-links=0`, autentikasi `unix_socket`.
 - [x] **5.4 Konfigurasi REST API PowerDNS**: Backend `gmysql`, binding `127.0.0.1:8081` dengan API key aman acak kriptografis.
 - [x] **5.5 Unit Service Systemd**: `panel-agent.service` (root hardened) dan `panel-web.service` (unprivileged).
 - [x] **5.6 Mitigasi Debian 13 `tmpfs` `/tmp`**: Seluruh staging diarahkan ke `/var/panel/tmp/<username>` di partisi disk utama.
 - [x] **5.7 Katalog Resep Aplikasi Resmi**: 8 resep tervalidasi Schema v7.0: WordPress, Joomla, Drupal, phpBB, Flarum, PrestaShop, OpenCart, Roundcube. ([recipes/](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/recipes/))
+- [x] **5.8 Debian / Ubuntu Package (.deb) Builder (`scripts/build_deb.sh`)**: Script pembuat paket `.deb` produksi standar Debian policy dengan metadata `DEBIAN/control`, script maintainer (`preinst`, `postinst`, `prerm`, `postrm`), checksum `md5sums`, SHA-256 digest, serta dual-engine packaging (`dpkg-deb` di Linux & fallback `ar+tar` di macOS). ([build_deb.sh](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/scripts/build_deb.sh))
 
 ### Pillar 6: Frontend UI/UX (React 19 + Tailwind CSS v4)
 
@@ -152,7 +153,8 @@ Dokumen ini adalah hasil analisis mendalam terhadap **seluruh berkas spesifikasi
 - [x] **12.1 Konfigurasi Vagrantfile Multi-Node Cluster (`deploy/vagrant/Vagrantfile`)**: Lingkungan uji 3 VM lokal otomatis: 1 Web Master (Ubuntu 24.04/26.04) + 2 DNS-Only nodes (Debian 12/13 & Ubuntu 24.04). ([Vagrantfile](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/deploy/vagrant/Vagrantfile))
 - [x] **12.2 Skrip Provisioner Otomatis Node DNS-Only**: Script provisioning minimal PowerDNS Authoritative REST API murni, ShellCheck clean & defensive Bash. ([provision-dns-only.sh](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/deploy/vagrant/provision-dns-only.sh))
 - [x] **12.3 Hardened GitHub Actions CI Workflow (`.github/workflows/ci.yml`)**: CI pipeline lengkap dengan buf lint, ShellCheck, actionlint, govulncheck, gosec SAST, `go test -race`, npm audit, dan cross-compilation AMD64. ([ci.yml](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/.github/workflows/ci.yml))
-- [x] **12.4 Otomasi Pembuatan Checksum & Rilis GitHub (`.github/workflows/release.yml`)**: Workflow rilis pada tag push `v*.*.*` yang memaketkan `aetherpanel-<version>-linux-amd64.tar.zst`, menghitung SHA-256 digest, dan mempublikasikan release assets ke GitHub. ([release.yml](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/.github/workflows/release.yml))
+- [x] **12.4 Otomasi Pembuatan Checksum & Rilis GitHub (`.github/workflows/release.yml`)**: Workflow rilis pada tag push `v*.*.*` yang memaketkan tarball `sparkpanelhost-<version>-linux-amd64.tar.zst`, paket Debian `sparkpanelhost_<version>_amd64.deb`, menghitung SHA-256 digest, dan mempublikasikan release assets ke GitHub. ([release.yml](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/.github/workflows/release.yml))
+- [x] **12.5 GitHub Actions Linux Package Builder (.deb) (`.github/workflows/build-deb.yml`)**: Workflow otomatis untuk membangun paket Debian/Ubuntu (`.deb`), memverifikasi instalasi bersih pada matriks kontainer target (`ubuntu:24.04` dan `debian:12`), mengunggah artefak paket, dan melampirkan aset ke GitHub Release. ([build-deb.yml](file:///Users/alsyundawy/Downloads/GitHub/SparkPanelHost/.github/workflows/build-deb.yml))
 
 ### Pillar 14: Industry Intelligence & Next-Gen Hosting Innovations
 

@@ -19,7 +19,7 @@ LDFLAGS       := -s -w \
 
 .PHONY: help proto build-agent build-web build-frontend build-all \
         test security-audit update-recipes verify-recipes \
-        package-tarball vm-up clean
+        package-tarball package-deb vm-up clean
 
 help: ## Menampilkan daftar perintah Makefile yang tersedia
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -77,6 +77,11 @@ package-tarball: build-all verify-recipes ## Membungkus rilis produksi ke arsip 
 	sha256sum $(PKG_DIR)/$(APP_NAME)-$(VERSION)-linux-amd64.tar.zst > \
 		$(PKG_DIR)/$(APP_NAME)-$(VERSION)-linux-amd64.tar.zst.sha256
 	@echo "==> Paket rilis siap di $(PKG_DIR)/"
+
+package-deb: build-all verify-recipes ## Membungkus rilis produksi ke paket Debian/Ubuntu (.deb)
+	@mkdir -p $(PKG_DIR)
+	bash scripts/build_deb.sh --version $(VERSION) --output $(PKG_DIR)
+	@echo "==> Paket Debian/Ubuntu (.deb) siap di $(PKG_DIR)/"
 
 vm-up: ## Menjalankan VM pengujian Ubuntu 26.04 & Debian 13 via Vagrant
 	cd deploy/vagrant && vagrant up

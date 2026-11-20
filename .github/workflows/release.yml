@@ -80,7 +80,7 @@ jobs:
         env:
           VERSION: ${{ steps.vars.outputs.version }}
         run: |
-          PKG_NAME="aetherpanel-${VERSION}-linux-amd64.tar.zst"
+          PKG_NAME="sparkpanelhost-${VERSION}-linux-amd64.tar.zst"
           tar --zstd -cf "dist/packages/${PKG_NAME}" \
             -C dist bin web \
             installer recipes
@@ -89,13 +89,22 @@ jobs:
           sha256sum "${PKG_NAME}" > "${PKG_NAME}.sha256"
           echo "==> Package ready: ${PKG_NAME}"
           cat "${PKG_NAME}.sha256"
+          cd ../..
+
+      - name: Package Debian / Ubuntu Release (.deb) & SHA-256
+        env:
+          VERSION: ${{ steps.vars.outputs.version }}
+        run: |
+          bash scripts/build_deb.sh --version "${VERSION}" --arch amd64 --output dist/packages
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            dist/packages/aetherpanel-*.tar.zst
-            dist/packages/aetherpanel-*.tar.zst.sha256
+            dist/packages/sparkpanelhost-*.tar.zst
+            dist/packages/sparkpanelhost-*.tar.zst.sha256
+            dist/packages/sparkpanelhost_*.deb
+            dist/packages/sparkpanelhost_*.deb.sha256
           draft: false
           prerelease: false
           generate_release_notes: true

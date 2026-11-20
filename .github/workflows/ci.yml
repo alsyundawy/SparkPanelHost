@@ -33,11 +33,13 @@ jobs:
       - name: Lint Shell Scripts with ShellCheck
         run: |
           shellcheck -s bash installer/install.sh
+          shellcheck -s bash scripts/build_deb.sh
           shellcheck -s bash deploy/vagrant/provision-dns-only.sh
 
       - name: Verify Shell Scripts Syntax
         run: |
           bash -n installer/install.sh
+          bash -n scripts/build_deb.sh
           bash -n deploy/vagrant/provision-dns-only.sh
 
   backend-tests:
