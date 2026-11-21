@@ -1,30 +1,30 @@
 id: roundcube
-name: "Roundcube Webmail"
+name: Roundcube Webmail
 category: webmail
 description:
-  id: "Klien email berbasis web modern dengan dukungan SSO dan manajemen filter Sieve."
-  en: "Browser-based multilingual IMAP client with SSO and Sieve filter support."
-version: "1.6.11"
-release_date: "2026-10-05"
+  id: Klien email berbasis web modern dengan dukungan SSO dan manajemen filter Sieve.
+  en: Browser-based multilingual IMAP client with SSO and Sieve filter support.
+version: 1.7.6
+release_date: '2026-11-21'
 upstream:
   provider: github_release
-  repo: "roundcube/roundcubemail"
-  asset_regex: '^roundcubemail-.*-complete\.tar\.gz$'
+  repo: roundcube/roundcubemail
+  asset_regex: ^roundcubemail-.*-complete\.tar\.gz$
 source:
-  url: "https://github.com/roundcube/roundcubemail/releases/download/1.6.11/roundcubemail-1.6.11-complete.tar.gz"
-  sha256: "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+  url: https://github.com/roundcube/roundcubemail/releases/download/1.7.6/roundcubemail-1.7.6-complete.tar.gz
+  sha256: 0168085bf0bfeeb5d4eca3b9730effbe610dbdb380a68567d292fec51f09db36
   strip_components: 1
 requirements:
-  php_min: "8.2"
-  php_recommended: "8.5"
+  php_min: '8.2'
+  php_recommended: '8.5'
   php_extensions:
-    - pdo_mysql
-    - mbstring
-    - intl
-    - openssl
-    - xml
-    - zip
+  - pdo_mysql
+  - mbstring
+  - intl
+  - openssl
+  - xml
+  - zip
   database: mariadb
   disk_mb: 80
-nginx_template: "roundcube_internal"
-waf_profile: "webmail_crs_exclusions"
+nginx_template: roundcube_internal
+waf_profile: webmail_crs_exclusions

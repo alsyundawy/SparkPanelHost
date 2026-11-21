@@ -1,31 +1,31 @@
 id: flarum
-name: "Flarum"
+name: Flarum
 category: forum
 description:
-  id: "Software forum diskusi modern yang ringan, cepat, dan responsif."
-  en: "Delightfully simple, fast, and modern open-source forum software."
-version: "1.8.8"
-release_date: "2026-09-20"
+  id: Software forum diskusi modern yang ringan, cepat, dan responsif.
+  en: Delightfully simple, fast, and modern open-source forum software.
+version: 2.0.0
+release_date: '2026-11-21'
 upstream:
   provider: github_release
-  repo: "flarum/flarum"
+  repo: flarum/flarum
 source:
-  url: "https://api.github.com/repos/flarum/flarum/tarball/v1.8.8"
-  sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  url: https://api.github.com/repos/flarum/flarum/tarball/v2.0.0
+  sha256: 58b890b0cd9fbaa498ee91c2aa0de726b149f17c8c73ac576d29f141fe47fa00
   strip_components: 1
 requirements:
-  php_min: "8.2"
-  php_recommended: "8.5"
+  php_min: '8.2'
+  php_recommended: '8.5'
   php_extensions:
-    - curl
-    - dom
-    - gd
-    - json
-    - mbstring
-    - openssl
-    - pdo_mysql
-    - tokenizer
+  - curl
+  - dom
+  - gd
+  - json
+  - mbstring
+  - openssl
+  - pdo_mysql
+  - tokenizer
   database: mariadb
   disk_mb: 120
-nginx_template: "flarum_public_root"
-waf_profile: "default"
+nginx_template: flarum_public_root
+waf_profile: default
